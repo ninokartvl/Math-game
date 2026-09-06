@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Учительский кабинет — таблица умножения</title>
+  <!--
+    © 2026 Предеина Нина Владимировна (predeinanina10@gmail.com)
+    Лицензия: MIT License
+  -->
+  <style>
+    * { font-family: 'Segoe UI', sans-serif; box-sizing: border-box; }
+    body { 
+      background: #f0ebf8; 
+      padding: 20px; 
+      max-width: 1000px; 
+      margin: 0 auto; 
+    }
+    h1 { color: #2d1b4e; text-align: center; }
+    .subtitle { text-align: center; color: #555; margin-bottom: 20px; }
+    table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      background: white; 
+      border-radius: 20px; 
+      overflow: hidden; 
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1); 
+    }
+    th { 
+      background: #2d1b4e; 
+      color: white; 
+      padding: 14px; 
+      text-align: left; 
+    }
+    td { padding: 12px; border-bottom: 1px solid #eee; }
+    tr:hover { background: #f5f0ff; }
+    .badge { 
+      background: gold; 
+      padding: 2px 10px; 
+      border-radius: 20px; 
+      font-weight: bold; 
+    }
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 20px 0;
+      justify-content: center;
+    }
+    .btn {
+      border: none;
+      padding: 12px 24px;
+      border-radius: 40px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.1s;
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn-primary { background: #2d1b4e; color: white; }
+    .btn-danger { background: #b33; color: white; }
+    .btn-success { background: #2a7a2a; color: white; }
+    .footer {
+      margin-top: 30px;
+      text-align: center;
+      color: #666;
+      border-top: 2px dashed #b39ddb;
+      padding-top: 20px;
+    }
+    .empty-msg {
+      text-align: center;
+      padding: 40px;
+      color: #888;
+      font-size: 1.2rem;
+    }
+  </style>
+</head>
+<body>
+<h1>📊 Учительский кабинет</h1>
+<p class="subtitle">Здесь отображаются результаты учеников, которые сохраняются в браузере.</p>
+
+<div class="btn-group">
+  <button class="btn btn-success" onclick="exportExcel()">📥 Скачать отчёт (CSV)</button>
+  <button class="btn btn-primary" onclick="exportJSON()">📄 Скачать JSON</button>
+  <button class="btn btn-danger" onclick="clearAll()">🗑️ Очистить все данные</button>
+</div>
+
+<table id="statsTable">
+  <thead>
+    <tr>
+      <th>👤 Ученик</th>
+      <th>🏅 Кубки</th>
+      <th>⭐ Ур.1</th>
+      <th>⭐ Ур.2</th>
+      <th>⭐ Ур.3</th>
+      <th>⭐ Ур.4</th>
+      <th>⭐ Ур.5</th>
+      <th>⭐ Ур.6</th>
+    </tr>
+  </thead>
+  <tbody id="statsBody"></tbody>
+</table>
+
+<div class="footer">
+  © 2026 Предеина Нина Владимировна • predeinanina10@gmail.com • MIT License
+</div>
+
+<script>
+  function loadStats() {
+    const data = JSON.parse(localStorage.getItem('mathTrainerAllStudents') || '{}');
+    const tbody = document.getElementById('statsBody');
+    tbody.innerHTML = '';
+    const names = Object.keys(data);
+    if (names.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8" class="empty-msg">📭 Пока нет данных. Попросите учеников ввести своё имя в игре.</td></tr>';
+      return;
+    }
+    names.sort();
+    names.forEach(name => {
+      const s = data[name];
+      const row = document.createElement('tr');
+      const lc = s.levelCups || [0,0,0,0,0,0];
+      row.innerHTML = `
+        <td><strong>${name}</strong></td>
+        <td><span class="badge">${s.cups || 0}</span></td>
+        ${[0,1,2,3,4,5].map(i => 
+          `<td>${'⭐'.repeat(lc[i] || 0)}${'☆'.repeat(3-(lc[i] || 0))}</td>`
+        ).join('')}
+      `;
+      tbody.appendChild(row);
+    });
+  }
+
+  function exportExcel() {
+    const data = JSON.parse(localStorage.getItem('mathTrainerAllStudents') || '{}');
+    const names = Object.keys(data);
+    if (names.length === 0) { alert('Нет данных для экспорта'); return; }
+    let csv = 'Ученик,Кубки,Уровень1,Уровень2,Уровень3,Уровень4,Уровень5,Уровень6\n';
+    names.forEach(name => {
+      const s = data[name];
+      const lc = s.levelCups || [0,0,0,0,0,0];
+      csv += `${name},${s.cups || 0},${lc.join(',')}\n`;
+    });
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'результаты_таблица_умножения.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function exportJSON() {
+    const data = JSON.parse(localStorage.getItem('mathTrainerAllStudents') || '{}');
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'результаты_учеников.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function clearAll() {
+    if (confirm('Удалить все данные учеников?')) {
+      localStorage.removeItem('mathTrainerAllStudents');
+      loadStats();
+    }
+  }
+
+  loadStats();
+</script>
+</body>
+</html>
