@@ -181,6 +181,11 @@
       border: 2px solid #b28bde;
     }
     .btn:active { transform: translateY(4px); box-shadow: 0 3px 0 #1f0f35; }
+    .btn-reset {
+      background: #b33;
+      box-shadow: 0 8px 0 #6a1a1a;
+    }
+    .btn-reset:active { box-shadow: 0 3px 0 #6a1a1a; }
     .footer {
       margin-top: 16px;
       font-size: 0.9rem;
@@ -235,6 +240,13 @@
       font-size: 0.7rem;
       margin-left: 8px;
     }
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 8px;
+    }
     @media (max-width: 500px) {
       .expression-box { font-size: 2.0rem; }
       .option-btn { font-size: 1.2rem; padding: 14px 4px; }
@@ -246,13 +258,15 @@
 <div id="app">
   <div id="mainMenu" class="main-menu">
     <h1>🏆 Карта уровней <span class="vk-badge" id="vkBadge" style="display:none;">VK</span></h1>
-    <!-- ФИО убраны отсюда, теперь только внизу -->
     <div class="level-grid" id="levelGrid"></div>
     <div style="display: flex; justify-content: center; gap: 24px; font-size: 1.2rem; background: #dcc8f0; border-radius: 60px; padding: 8px 12px;">
       <span>❤️ <span id="globalLives">3</span></span>
       <span>🏅 <span id="globalCups">0</span></span>
     </div>
-    <button class="vk-share-btn" id="shareBtn" style="display:none;">📤 Поделиться результатом</button>
+    <div class="button-group">
+      <button class="vk-share-btn" id="shareBtn" style="display:none;">📤 Поделиться результатом</button>
+      <button class="btn btn-reset" id="resetBtn">🔄 Начать заново</button>
+    </div>
     <div class="footer">© Предеина Н.В. • predeinanina10@gmail.com • MIT License</div>
   </div>
 
@@ -313,7 +327,7 @@
       correctAnswer: null,
       answered: false,
       optionElements: [],
-      lastQuestions: [] // для избежания повторов
+      lastQuestions: []
     };
 
     // DOM refs
@@ -332,12 +346,43 @@
     const levelCompleteMsg = document.getElementById('levelCompleteMsg');
     const nextRoundBtn = document.getElementById('nextRoundBtn');
     const backToMenuBtn = document.getElementById('backToMenuBtn');
+    const resetBtn = document.getElementById('resetBtn');
 
     // ---- ИМЯ, ШКОЛА И КЛАСС ----
     let studentName = localStorage.getItem('mathTrainerStudentName');
     let studentSchool = localStorage.getItem('mathTrainerStudentSchool');
     let studentClass = localStorage.getItem('mathTrainerStudentClass');
 
+    // ---- КНОПКА "НАЧАТЬ ЗАНОВО" ----
+    resetBtn.addEventListener('click', function() {
+      if (confirm('🔄 Вы уверены, что хотите начать игру заново?\nВесь прогресс будет удалён!')) {
+        // Удаляем все данные
+        localStorage.removeItem('mathTrainerProgress');
+        localStorage.removeItem('mathTrainerStudentName');
+        localStorage.removeItem('mathTrainerStudentSchool');
+        localStorage.removeItem('mathTrainerStudentClass');
+        // Сбрасываем состояние
+        state.cups = 0;
+        state.levelCups = [0,0,0,0,0,0];
+        state.unlockedLevel = 0;
+        state.lives = 3;
+        state.round = 0;
+        state.lastQuestions = [];
+        // Обновляем интерфейс
+        updateTopBar();
+        renderLevelGrid();
+        // Перезапрашиваем имя
+        studentName = null;
+        studentSchool = null;
+        studentClass = null;
+        // Показываем главное меню
+        showMainMenu();
+        // Обновляем страницу, чтобы запросить имя
+        location.reload();
+      }
+    });
+
+    // ---- Запрос имени при первом запуске ----
     if (!studentName) {
       studentName = prompt('👋 Введите своё имя:');
       if (studentName) {
@@ -361,7 +406,6 @@
       return arr;
     }
 
-    // ---- ГЕНЕРАЦИЯ СЛУЧАЙНЫХ ЧИСЕЛ С 6,7,8,9 ----
     function getRandomInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
@@ -379,7 +423,6 @@
       let attempts = 0;
       let questionKey = '';
 
-      // Функция для генерации уникального ключа вопроса
       const generateKey = (a, b, op) => `${a}_${b}_${op}`;
 
       do {
@@ -411,7 +454,6 @@
           if (level === 3 && Math.random() > 0.6) {
             if (Math.random() > 0.5) a = 0; else b = 0;
           }
-          // Для уровня 3 (до 10) добавляем больше 6,7,8,9
           if (level === 3 && Math.random() > 0.4) {
             a = getRandomFromArray([6,7,8,9]);
             b = getRandomFromArray([2,3,4,5,6,7,8,9]);
@@ -484,10 +526,8 @@
           options = shuffleArray([...opts]);
           answerType = 'number';
         }
-        // Проверяем, не было ли такого вопроса недавно
       } while (state.lastQuestions.includes(questionKey) && attempts < 20);
       
-      // Сохраняем последние 5 вопросов
       state.lastQuestions.push(questionKey);
       if (state.lastQuestions.length > 5) state.lastQuestions.shift();
       
