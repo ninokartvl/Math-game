@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Таблица умножения — 2 класс</title>
+  
+  <!--
+    © 2026 Предеина Нина Владимировна (predeinanina10@gmail.com)
+    Лицензия: MIT License
+    Право на использование, копирование, изменение и распространение 
+    предоставляется при условии сохранения данного уведомления.
+  -->
+  
+  <!-- Подключение VK Bridge для работы внутри VK Mini Apps -->
+  <script src="https://vk.com/js/api/openapi.js?169"></script>
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+      user-select: none;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(145deg, #f7f0fc 0%, #e8dff5 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+    #app {
+      max-width: 800px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(4px);
+      border-radius: 64px 64px 48px 48px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), 0 8px 16px rgba(0, 0, 0, 0.1);
+      padding: 24px 20px 32px;
+      border: 2px solid rgba(255, 255, 255, 0.6);
+      transition: all 0.2s;
+    }
+    h1, h2, h3 {
+      text-align: center;
+      margin: 6px 0;
+      color: #2d1b4e;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    h1 {
+      font-size: 2.1rem;
+      text-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .main-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      padding: 8px 4px;
+    }
+    .level-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin: 20px 0 10px;
+    }
+    .level-card {
+      background: #ffffffdd;
+      backdrop-filter: blur(2px);
+      border-radius: 28px;
+      padding: 12px 6px;
+      text-align: center;
+      box-shadow: 0 6px 0 #b7a1d4, 0 8px 16px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: 0.12s ease;
+      border: 2px solid #d8c9f0;
+      font-weight: 600;
+      color: #2a1b3f;
+      font-size: 1rem;
+    }
+    .level-card:active { transform: scale(0.94); box-shadow: 0 2px 0 #b7a1d4; }
+    .level-card.locked {
+      opacity: 0.5;
+      filter: grayscale(0.6);
+      pointer-events: none;
+    }
+    .level-card .trophy {
+      font-size: 1.6rem;
+      display: block;
+    }
+    .level-card .stars {
+      font-size: 1.2rem;
+      letter-spacing: 2px;
+    }
+    .game-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    .top-bar {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      background: #302050cc;
+      backdrop-filter: blur(4px);
+      padding: 10px 18px;
+      border-radius: 60px;
+      color: white;
+      font-weight: 700;
+      font-size: 1.1rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .top-bar span { background: #1e1233; padding: 4px 16px; border-radius: 40px; }
+    .expression-box {
+      background: #ffffffea;
+      width: 100%;
+      padding: 20px 8px;
+      border-radius: 60px;
+      font-size: 2.8rem;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 3px;
+      color: #1f0936;
+      border: 4px solid #cbb5e6;
+      box-shadow: inset 0 -6px 0 #a587c9;
+      margin: 8px 0;
+      word-break: break-word;
+      line-height: 1.3;
+    }
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      width: 100%;
+      margin: 12px 0;
+    }
+    .option-btn {
+      background: #fcf9ff;
+      border: 3px solid #b698da;
+      border-radius: 60px;
+      padding: 18px 6px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #2d0f4a;
+      box-shadow: 0 6px 0 #8466ac;
+      transition: 0.08s linear;
+      text-align: center;
+      cursor: pointer;
+    }
+    .option-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #8466ac; }
+    .option-btn.correct-glow { background: #b7f0b7; border-color: #2b7a2b; }
+    .option-btn.wrong-glow { background: #fbb5b5; border-color: #a13030; }
+    .info-msg {
+      background: #ffecb3;
+      padding: 12px 16px;
+      border-radius: 60px;
+      font-weight: 600;
+      color: #5c3d00;
+      border-left: 6px solid #ffa500;
+      width: 100%;
+      text-align: center;
+    }
+    .btn {
+      background: #3e2862;
+      border: none;
+      border-radius: 60px;
+      padding: 14px 28px;
+      color: white;
+      font-weight: 700;
+      font-size: 1.2rem;
+      box-shadow: 0 8px 0 #1f0f35;
+      transition: 0.08s linear;
+      cursor: pointer;
+      width: fit-content;
+      margin: 6px auto;
+      border: 2px solid #b28bde;
+    }
+    .btn:active { transform: translateY(4px); box-shadow: 0 3px 0 #1f0f35; }
+    .footer {
+      margin-top: 16px;
+      font-size: 0.9rem;
+      color: #3f2b5a;
+      text-align: center;
+      border-top: 2px dashed #b39ddb;
+      padding-top: 14px;
+    }
+    .lives {
+      display: flex;
+      gap: 8px;
+      font-size: 1.8rem;
+      line-height: 1;
+    }
+    .cup-badge {
+      background: gold;
+      color: #1f0936;
+      padding: 0 12px;
+      border-radius: 40px;
+      font-weight: 800;
+    }
+    .disabled-click { pointer-events: none; opacity: 0.8; }
+    .modal-message {
+      background: #1d0d2e;
+      color: white;
+      padding: 20px 18px;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 1.3rem;
+      text-align: center;
+      border: 4px solid #ffd966;
+    }
+    .vk-share-btn {
+      background: #0077ff;
+      border: none;
+      border-radius: 60px;
+      padding: 12px 24px;
+      color: white;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 10px;
+      box-shadow: 0 4px 0 #0055cc;
+    }
+    .vk-share-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #0055cc; }
+    @media (max-width: 500px) {
+      .expression-box { font-size: 2.0rem; }
+      .option-btn { font-size: 1.2rem; padding: 14px 4px; }
+      .level-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div id="mainMenu" class="main-menu">
+    <h1>🏆 Карта уровней</h1>
+    <div style="font-size: 1.1rem; text-align: center; color: #3a2555;">👩‍🏫 Предеина Нина Владимировна</div>
+    <div class="level-grid" id="levelGrid"></div>
+    <div style="display: flex; justify-content: center; gap: 24px; font-size: 1.2rem; background: #dcc8f0; border-radius: 60px; padding: 8px 12px;">
+      <span>❤️ <span id="globalLives">3</span></span>
+      <span>🏅 <span id="globalCups">0</span></span>
+    </div>
+    <button class="vk-share-btn" id="shareBtn" style="display:none;">📤 Поделиться результатом</button>
+    <div class="footer">© Предеина Н.В. • predeinanina10@gmail.com • MIT License</div>
+  </div>
+
+  <div id="gameScreen" style="display: none;" class="game-area">
+    <div class="top-bar">
+      <span id="levelTitle">Уровень 1</span>
+      <span id="roundIndicator">1/10</span>
+      <div class="lives"><span id="livesDisplay">❤️❤️❤️</span></div>
+      <span id="cupDisplay">🏅0</span>
+    </div>
+    <div class="expression-box" id="expressionDisplay">3 + 3</div>
+    <div class="options-grid" id="optionsContainer"></div>
+    <div id="feedbackArea" class="info-msg" style="display: none;"></div>
+    <div id="levelCompleteMsg" class="modal-message" style="display: none;"></div>
+    <button class="btn" id="nextRoundBtn" style="display: none;">➡️ Следующий</button>
+    <button class="btn" id="backToMenuBtn" style="background: #6a4a8a;">🏠 В меню</button>
+    <div style="font-size: 0.9rem; margin-top: 6px; color: #402a5a;">Предеина Нина Владимировна</div>
+  </div>
+</div>
+<script>
+  (function(){
+    // ---- AUTHOR ----
+    const AUTHOR = "Предеина Нина Владимировна";
+    const EMAIL = "predeinanina10@gmail.com";
+
+    // ---------- LEVEL CONFIG ----------
+    const LEVELS = [
+      { id:0, name:"Замени сложение", short:"замена +", type:"sumToMul", maxNum:5 },
+      { id:1, name:"Умножение до 5", short:"× до 5", type:"multiplication", maxNum:5 },
+      { id:2, name:"Деление до 5", short:"÷ до 5", type:"division", maxNum:5 },
+      { id:3, name:"Умножение до 10 и 0", short:"× до 10", type:"multiplication", maxNum:10 },
+      { id:4, name:"Деление (вся табл.)", short:"÷ вся", type:"division", maxNum:10 },
+      { id:5, name:"× ÷ до 100", short:"×÷ 100", type:"mixed", maxNum:10 }
+    ];
+
+    // Game state
+    let state = {
+      currentLevel: 0,
+      round: 0,
+      lives: 3,
+      cups: 0,
+      levelStars: 0,
+      levelCompleted: false,
+      levelCups: [0,0,0,0,0,0],
+      unlockedLevel: 0,
+      correctAnswer: null,
+      answered: false,
+      optionElements: [],
+    };
+
+    // DOM refs
+    const mainMenu = document.getElementById('mainMenu');
+    const gameScreen = document.getElementById('gameScreen');
+    const levelGrid = document.getElementById('levelGrid');
+    const levelTitle = document.getElementById('levelTitle');
+    const roundIndicator = document.getElementById('roundIndicator');
+    const livesDisplay = document.getElementById('livesDisplay');
+    const cupDisplay = document.getElementById('cupDisplay');
+    const globalLives = document.getElementById('globalLives');
+    const globalCups = document.getElementById('globalCups');
+    const expressionDisplay = document.getElementById('expressionDisplay');
+    const optionsContainer = document.getElementById('optionsContainer');
+    const feedbackArea = document.getElementById('feedbackArea');
+    const levelCompleteMsg = document.getElementById('levelCompleteMsg');
+    const nextRoundBtn = document.getElementById('nextRoundBtn');
+    const backToMenuBtn = document.getElementById('backToMenuBtn');
+
+    // ---- ИМЯ УЧЕНИКА ----
+    let studentName = localStorage.getItem('mathTrainerStudentName');
+    if (!studentName) {
+      studentName = prompt('👋 Введите своё имя (для учителя):');
+      if (studentName) localStorage.setItem('mathTrainerStudentName', studentName);
+    }
+
+    // ---- helpers ----
+    function shuffleArray(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // ---- generate expression & answers ----
+    function generateQuestion(level) {
+      const type = LEVELS[level].type;
+      const max = LEVELS[level].maxNum;
+      let a, b, answer, display, options = [];
+      let answerType = 'number';
+
+      if (type === 'sumToMul') {
+        const count = Math.floor(Math.random() * 4) + 2;
+        a = Math.floor(Math.random() * (max-1)) + 1;
+        if (a > 5 && count > 3) a = Math.floor(Math.random() * 3) + 1;
+        const sum = a * count;
+        display = Array(count).fill(a).join(' + ');
+        answer = `${a} × ${count}`;
+        let opts = new Set();
+        opts.add(answer);
+        while(opts.size < 4) {
+          let a2 = Math.floor(Math.random() * (max)) + 1;
+          let c2 = Math.floor(Math.random() * 4) + 2;
+          if (a2*c2 > 60) { a2 = Math.floor(Math.random()*4)+1; c2 = Math.floor(Math.random()*3)+2; }
+          let candidate = `${a2} × ${c2}`;
+          if (candidate !== answer) opts.add(candidate);
+        }
+        options = shuffleArray([...opts]);
+        return { display, answer, options, answerType: 'expression' };
+      }
+      else if (type === 'multiplication') {
+        if (max === 10) {
+          a = Math.floor(Math.random() * 10) + 1;
+          b = Math.floor(Math.random() * 10) + 1;
+        } else {
+          a = Math.floor(Math.random() * max) + 1;
+          b = Math.floor(Math.random() * max) + 1;
+        }
+        if (level === 3 && Math.random() > 0.7) {
+          if (Math.random() > 0.5) a = 0; else b = 0;
+        }
+        answer = a * b;
+        display = `${a} × ${b}`;
+        let opts = new Set();
+        opts.add(answer);
+        while(opts.size < 4) {
+          let candidate = answer + Math.floor(Math.random() * 9) - 4;
+          if (candidate < 0) candidate = Math.abs(candidate) % 20;
+          if (candidate !== answer && candidate >= 0 && candidate <= 100) opts.add(candidate);
+        }
+        options = shuffleArray([...opts]);
+        return { display, answer, options, answerType: 'number' };
+      }
+      else if (type === 'division') {
+        if (max === 10) {
+          b = Math.floor(Math.random() * 9) + 1;
+          let quotient = Math.floor(Math.random() * 10) + 1;
+          a = b * quotient;
+          if (a > 100) { a = 81; b=9; quotient=9; }
+          answer = quotient;
+          display = `${a} ÷ ${b}`;
+        } else {
+          b = Math.floor(Math.random() * (max-1)) + 1;
+          let quotient = Math.floor(Math.random() * (max-1)) + 1;
+          a = b * quotient;
+          if (a > 30) { a = b * (Math.floor(Math.random()*4)+1); }
+          answer = quotient;
+          display = `${a} ÷ ${b}`;
+        }
+        let opts = new Set();
+        opts.add(answer);
+        while(opts.size < 4) {
+          let candidate = answer + Math.floor(Math.random() * 7) - 3;
+          if (candidate < 0) candidate = Math.abs(candidate) % 10 + 1;
+          if (candidate !== answer && candidate >= 0 && candidate <= 20) opts.add(candidate);
+        }
+        options = shuffleArray([...opts]);
+        return { display, answer, options, answerType: 'number' };
+      }
+      else if (type === 'mixed') {
+        if (Math.random() > 0.5) {
+          a = Math.floor(Math.random() * 9) + 2;
+          b = Math.floor(Math.random() * 9) + 2;
+          if (a*b > 100) { a= Math.floor(Math.random()*7)+2; b=Math.floor(Math.random()*7)+2; }
+          answer = a * b;
+          display = `${a} × ${b}`;
+        } else {
+          b = Math.floor(Math.random() * 8) + 2;
+          let quotient = Math.floor(Math.random() * 8) + 2;
+          a = b * quotient;
+          if (a > 100) { a = 56; b=7; quotient=8; }
+          answer = quotient;
+          display = `${a} ÷ ${b}`;
+        }
+        let opts = new Set();
+        opts.add(answer);
+        while(opts.size < 4) {
+          let candidate = answer + Math.floor(Math.random() * 9) - 4;
+          if (candidate < 0) candidate = Math.abs(candidate) % 25 + 1;
+          if (candidate !== answer && candidate >= 0 && candidate <= 100) opts.add(candidate);
+        }
+        options = shuffleArray([...opts]);
+        return { display, answer, options, answerType: 'number' };
+      }
+      return { display: '1+1', answer: 2, options: [1,2,3,4], answerType: 'number' };
+    }
+
+    // ---- render round ----
+    function renderRound() {
+      const level = state.currentLevel;
+      const round = state.round;
+      if (round >= 10) {
+        finishLevel();
+        return;
+      }
+
+      state.answered = false;
+      feedbackArea.style.display = 'none';
+      nextRoundBtn.style.display = 'none';
+      levelCompleteMsg.style.display = 'none';
+      optionsContainer.classList.remove('disabled-click');
+
+      const q = generateQuestion(level);
+      state.correctAnswer = q.answer;
+      expressionDisplay.textContent = q.display;
+
+      optionsContainer.innerHTML = '';
+      const opts = q.options;
+      state.optionElements = [];
+      opts.forEach((opt, idx) => {
+        const btn = document.createElement('div');
+        btn.className = 'option-btn';
+        btn.textContent = opt;
+        btn.dataset.value = opt;
+        btn.addEventListener('click', (e) => onOptionClick(e, btn, q.answer, q.answerType));
+        optionsContainer.appendChild(btn);
+        state.optionElements.push(btn);
+      });
+
+      levelTitle.textContent = LEVELS[level].name;
+      roundIndicator.textContent = `${round+1}/10`;
+      updateTopBar();
+    }
+
+    function onOptionClick(e, btn, correct, answerType) {
+      if (state.answered) return;
+      const selected = btn.dataset.value;
+      let isCorrect = false;
+      if (answerType === 'expression') {
+        isCorrect = (selected === correct);
+      } else {
+        isCorrect = (Number(selected) === Number(correct));
+      }
+
+      state.optionElements.forEach(b => {
+        if (b.dataset.value == correct && answerType === 'expression') {
+          if (b.textContent === correct) b.classList.add('correct-glow');
+        } else if (b.dataset.value == correct && answerType !== 'expression') {
+          if (Number(b.dataset.value) === Number(correct)) b.classList.add('correct-glow');
+        }
+        if (b === btn && !isCorrect) b.classList.add('wrong-glow');
+        else if (b === btn && isCorrect) b.classList.add('correct-glow');
+      });
+
+      state.answered = true;
+      optionsContainer.classList.add('disabled-click');
+
+      if (isCorrect) {
+        feedbackArea.style.display = 'block';
+        feedbackArea.textContent = '✅ Верно! Молодец!';
+        feedbackArea.style.background = '#c8f0c8';
+        setTimeout(() => {
+          if (state.round < 9) {
+            state.round++;
+            renderRound();
+          } else {
+            state.round = 10;
+            finishLevel();
+          }
+        }, 900);
+      } else {
+        state.lives--;
+        updateTopBar();
+        feedbackArea.style.display = 'block';
+        feedbackArea.textContent = `❌ Неверно. Правильный ответ: ${correct}`;
+        feedbackArea.style.background = '#fcc';
+        if (state.lives <= 0) {
+          feedbackArea.textContent += ' ❤️ Жизни кончились!';
+          setTimeout(() => {
+            state.lives = 3;
+            state.round = 0;
+            updateTopBar();
+            showMainMenu();
+          }, 1500);
+        } else {
+          setTimeout(() => {
+            if (state.round < 9) {
+              state.round++;
+              renderRound();
+            } else {
+              state.round = 10;
+              finishLevel();
+            }
+          }, 1200);
+        }
+      }
+    }
+
+    function finishLevel() {
+      state.levelCompleted = true;
+      let earned = 0;
+      if (state.lives > 0) {
+        earned = 1;
+        if (state.lives >= 2) earned = 2;
+        if (state.lives >= 3) earned = 3;
+      }
+      const prev = state.levelCups[state.currentLevel];
+      if (earned > prev) {
+        state.cups += (earned - prev);
+        state.levelCups[state.currentLevel] = earned;
+      }
+      if (state.currentLevel < 5) {
+        state.unlockedLevel = Math.max(state.unlockedLevel, state.currentLevel + 1);
+      }
+      updateTopBar();
+      saveProgress();
+      saveStudentProgress();
+
+      let teacherMsg = '';
+      if (state.currentLevel >= 1 && state.currentLevel <= 5) {
+        teacherMsg = '🧑‍🏫 Покажи прохождение учителю для выставления отметки!';
+      }
+
+      levelCompleteMsg.style.display = 'block';
+      levelCompleteMsg.innerHTML = `🎉 Уровень пройден! +${earned} кубок(а)<br>${teacherMsg}`;
+      nextRoundBtn.style.display = 'none';
+    }
+
+    function updateTopBar() {
+      const hearts = '❤️'.repeat(Math.max(0, state.lives)) + '🖤'.repeat(Math.max(0, 3-state.lives));
+      livesDisplay.textContent = hearts || '💔';
+      cupDisplay.textContent = `🏅${state.cups}`;
+      globalLives.textContent = state.lives;
+      globalCups.textContent = state.cups;
+    }
+
+    // ---- СОХРАНЕНИЕ ПРОГРЕССА ----
+    function saveProgress() {
+      const data = {
+        cups: state.cups,
+        levelCups: state.levelCups,
+        unlockedLevel: state.unlockedLevel,
+        lives: state.lives
+      };
+      localStorage.setItem('mathTrainerProgress', JSON.stringify(data));
+    }
+
+    function loadProgress() {
+      const saved = localStorage.getItem('mathTrainerProgress');
+      if (saved) {
+        try {
+          const data = JSON.parse(saved);
+          state.cups = data.cups || 0;
+          state.levelCups = data.levelCups || [0,0,0,0,0,0];
+          state.unlockedLevel = data.unlockedLevel || 0;
+          state.lives = data.lives || 3;
+          updateTopBar();
+          renderLevelGrid();
+        } catch(e) {}
+      }
+    }
+
+    function saveStudentProgress() {
+      const all = JSON.parse(localStorage.getItem('mathTrainerAllStudents') || '{}');
+      if (!studentName) return;
+      all[studentName] = {
+        cups: state.cups,
+        levelCups: state.levelCups
+      };
+      localStorage.setItem('mathTrainerAllStudents', JSON.stringify(all));
+    }
+
+    // ---- show main menu ----
+    function showMainMenu() {
+      mainMenu.style.display = 'block';
+      gameScreen.style.display = 'none';
+      renderLevelGrid();
+      updateTopBar();
+      state.round = 0;
+      state.levelCompleted = false;
+    }
+
+    function renderLevelGrid() {
+      levelGrid.innerHTML = '';
+      LEVELS.forEach((lv, idx) => {
+        const card = document.createElement('div');
+        card.className = 'level-card';
+        if (idx > state.unlockedLevel) card.classList.add('locked');
+        const cups = state.levelCups[idx] || 0;
+        const starStr = '⭐'.repeat(cups) + '☆'.repeat(3-cups);
+        card.innerHTML = `
+          <span class="trophy">${idx+1}</span>
+          <strong>${lv.name}</strong>
+          <div class="stars">${starStr}</div>
+        `;
+        card.addEventListener('click', () => {
+          if (idx <= state.unlockedLevel) {
+            startLevel(idx);
+          }
+        });
+        levelGrid.appendChild(card);
+      });
+    }
+
+    function startLevel(idx) {
+      state.currentLevel = idx;
+      state.round = 0;
+      state.lives = 3;
+      state.levelCompleted = false;
+      mainMenu.style.display = 'none';
+      gameScreen.style.display = 'flex';
+      if (idx === 0) {
+        feedbackArea.style.display = 'block';
+        feedbackArea.textContent = '📖 Обучение: замени сумму одинаковых чисел умножением!';
+        feedbackArea.style.background = '#d9d0f0';
+      } else {
+        feedbackArea.style.display = 'none';
+      }
+      updateTopBar();
+      renderRound();
+    }
+
+    // ---- VK SHARE ----
+    document.getElementById('shareBtn')?.addEventListener('click', function() {
+      const text = `Я прошёл ${state.cups} уровней в тренажёре таблицы умножения! 🏆 Попробуй и ты!`;
+      const url = window.location.href;
+      if (window.vkBridge) {
+        window.vkBridge.send('VKWebAppShare', { link: url, text: text });
+      } else {
+        window.open(`https://vk.com/share.php?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+      }
+    });
+
+    if (window.vkBridge) {
+      document.getElementById('shareBtn').style.display = 'block';
+    }
+
+    // ---- event listeners ----
+    backToMenuBtn.addEventListener('click', () => {
+      if (state.round < 10) {
+        if (!confirm('Вернуться в меню? Прогресс уровня не сохранится.')) return;
+      }
+      state.lives = 3;
+      state.round = 0;
+      showMainMenu();
+    });
+
+    // ---- init ----
+    loadProgress();
+    showMainMenu();
+  })();
+</script>
+</body>
+</html>
