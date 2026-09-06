@@ -8,11 +8,9 @@
   <!--
     © 2026 Предеина Нина Владимировна (predeinanina10@gmail.com)
     Лицензия: MIT License
-    Право на использование, копирование, изменение и распространение 
-    предоставляется при условии сохранения данного уведомления.
   -->
   
-  <!-- Подключение VK Bridge для работы внутри VK Mini Apps -->
+  <!-- VK Bridge для работы внутри VK Mini Apps -->
   <script src="https://vk.com/js/api/openapi.js?169"></script>
   
   <style>
@@ -228,6 +226,15 @@
       box-shadow: 0 4px 0 #0055cc;
     }
     .vk-share-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #0055cc; }
+    .vk-badge {
+      display: inline-block;
+      background: #0077ff;
+      color: white;
+      padding: 2px 12px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      margin-left: 8px;
+    }
     @media (max-width: 500px) {
       .expression-box { font-size: 2.0rem; }
       .option-btn { font-size: 1.2rem; padding: 14px 4px; }
@@ -238,7 +245,7 @@
 <body>
 <div id="app">
   <div id="mainMenu" class="main-menu">
-    <h1>🏆 Карта уровней</h1>
+    <h1>🏆 Карта уровней <span class="vk-badge" id="vkBadge" style="display:none;">VK</span></h1>
     <div style="font-size: 1.1rem; text-align: center; color: #3a2555;">👩‍🏫 Предеина Нина Владимировна</div>
     <div class="level-grid" id="levelGrid"></div>
     <div style="display: flex; justify-content: center; gap: 24px; font-size: 1.2rem; background: #dcc8f0; border-radius: 60px; padding: 8px 12px;">
@@ -270,6 +277,24 @@
     // ---- AUTHOR ----
     const AUTHOR = "Предеина Нина Владимировна";
     const EMAIL = "predeinanina10@gmail.com";
+
+    // ---------- VK BRIDGE ----------
+    let vkReady = false;
+    let vkUser = null;
+    
+    function initVK() {
+      if (typeof window.VK !== 'undefined') {
+        try {
+          VK.init({ apiId: 0 }); // ID будет подставлен при регистрации приложения
+          console.log('VK Bridge инициализирован');
+          document.getElementById('vkBadge').style.display = 'inline-block';
+          document.getElementById('shareBtn').style.display = 'block';
+          vkReady = true;
+        } catch(e) {
+          console.log('VK не доступен');
+        }
+      }
+    }
 
     // ---------- LEVEL CONFIG ----------
     const LEVELS = [
@@ -340,7 +365,6 @@
         const count = Math.floor(Math.random() * 4) + 2;
         a = Math.floor(Math.random() * (max-1)) + 1;
         if (a > 5 && count > 3) a = Math.floor(Math.random() * 3) + 1;
-        const sum = a * count;
         display = Array(count).fill(a).join(' + ');
         answer = `${a} × ${count}`;
         let opts = new Set();
@@ -661,14 +685,23 @@
     document.getElementById('shareBtn')?.addEventListener('click', function() {
       const text = `Я прошёл ${state.cups} уровней в тренажёре таблицы умножения! 🏆 Попробуй и ты!`;
       const url = window.location.href;
-      if (window.vkBridge) {
-        window.vkBridge.send('VKWebAppShare', { link: url, text: text });
+      if (vkReady && typeof VK !== 'undefined') {
+        try {
+          VK.callMethod('share', { link: url, text: text });
+        } catch(e) {
+          window.open(`https://vk.com/share.php?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+        }
       } else {
         window.open(`https://vk.com/share.php?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
       }
     });
 
-    if (window.vkBridge) {
+    // ---- VK INIT ----
+    // Проверяем, что мы внутри VK приложения
+    if (window.location.search.includes('vk_app_id') || window.location.hostname.includes('vk.com')) {
+      initVK();
+    } else {
+      // Показываем кнопку "Поделиться" как обычную ссылку
       document.getElementById('shareBtn').style.display = 'block';
     }
 
