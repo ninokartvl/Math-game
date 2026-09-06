@@ -246,7 +246,7 @@
 <div id="app">
   <div id="mainMenu" class="main-menu">
     <h1>🏆 Карта уровней <span class="vk-badge" id="vkBadge" style="display:none;">VK</span></h1>
-    <div style="font-size: 1.1rem; text-align: center; color: #3a2555;">👩‍🏫 Предеина Нина Владимировна</div>
+    <!-- ФИО убраны отсюда, теперь только внизу -->
     <div class="level-grid" id="levelGrid"></div>
     <div style="display: flex; justify-content: center; gap: 24px; font-size: 1.2rem; background: #dcc8f0; border-radius: 60px; padding: 8px 12px;">
       <span>❤️ <span id="globalLives">3</span></span>
@@ -285,14 +285,11 @@
     function initVK() {
       if (typeof window.VK !== 'undefined') {
         try {
-          VK.init({ apiId: 0 }); // ID будет подставлен при регистрации приложения
-          console.log('VK Bridge инициализирован');
+          VK.init({ apiId: 0 });
           document.getElementById('vkBadge').style.display = 'inline-block';
           document.getElementById('shareBtn').style.display = 'block';
           vkReady = true;
-        } catch(e) {
-          console.log('VK не доступен');
-        }
+        } catch(e) {}
       }
     }
 
@@ -306,19 +303,17 @@
       { id:5, name:"× ÷ до 100", short:"×÷ 100", type:"mixed", maxNum:10 }
     ];
 
-    // Game state
     let state = {
       currentLevel: 0,
       round: 0,
       lives: 3,
       cups: 0,
-      levelStars: 0,
-      levelCompleted: false,
       levelCups: [0,0,0,0,0,0],
       unlockedLevel: 0,
       correctAnswer: null,
       answered: false,
       optionElements: [],
+      lastQuestions: [] // для избежания повторов
     };
 
     // DOM refs
@@ -338,14 +333,26 @@
     const nextRoundBtn = document.getElementById('nextRoundBtn');
     const backToMenuBtn = document.getElementById('backToMenuBtn');
 
-    // ---- ИМЯ УЧЕНИКА ----
+    // ---- ИМЯ, ШКОЛА И КЛАСС ----
     let studentName = localStorage.getItem('mathTrainerStudentName');
+    let studentSchool = localStorage.getItem('mathTrainerStudentSchool');
+    let studentClass = localStorage.getItem('mathTrainerStudentClass');
+
     if (!studentName) {
-      studentName = prompt('👋 Введите своё имя (для учителя):');
-      if (studentName) localStorage.setItem('mathTrainerStudentName', studentName);
+      studentName = prompt('👋 Введите своё имя:');
+      if (studentName) {
+        studentSchool = prompt('🏫 Введите номер школы:');
+        if (studentSchool) {
+          studentClass = prompt('📚 Введите свой класс (например, 2А):');
+          if (studentClass) {
+            localStorage.setItem('mathTrainerStudentName', studentName);
+            localStorage.setItem('mathTrainerStudentSchool', studentSchool.trim());
+            localStorage.setItem('mathTrainerStudentClass', studentClass.trim().toUpperCase());
+          }
+        }
+      }
     }
 
-    // ---- helpers ----
     function shuffleArray(arr) {
       for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -354,109 +361,139 @@
       return arr;
     }
 
-    // ---- generate expression & answers ----
+    // ---- ГЕНЕРАЦИЯ СЛУЧАЙНЫХ ЧИСЕЛ С 6,7,8,9 ----
+    function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function getRandomFromArray(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    // ---- ГЕНЕРАЦИЯ ВОПРОСОВ ----
     function generateQuestion(level) {
       const type = LEVELS[level].type;
       const max = LEVELS[level].maxNum;
       let a, b, answer, display, options = [];
       let answerType = 'number';
+      let attempts = 0;
+      let questionKey = '';
 
-      if (type === 'sumToMul') {
-        const count = Math.floor(Math.random() * 4) + 2;
-        a = Math.floor(Math.random() * (max-1)) + 1;
-        if (a > 5 && count > 3) a = Math.floor(Math.random() * 3) + 1;
-        display = Array(count).fill(a).join(' + ');
-        answer = `${a} × ${count}`;
-        let opts = new Set();
-        opts.add(answer);
-        while(opts.size < 4) {
-          let a2 = Math.floor(Math.random() * (max)) + 1;
-          let c2 = Math.floor(Math.random() * 4) + 2;
-          if (a2*c2 > 60) { a2 = Math.floor(Math.random()*4)+1; c2 = Math.floor(Math.random()*3)+2; }
-          let candidate = `${a2} × ${c2}`;
-          if (candidate !== answer) opts.add(candidate);
+      // Функция для генерации уникального ключа вопроса
+      const generateKey = (a, b, op) => `${a}_${b}_${op}`;
+
+      do {
+        attempts++;
+        if (type === 'sumToMul') {
+          const count = getRandomInt(2, 5);
+          a = getRandomInt(2, Math.min(max, 5));
+          if (a > 5) a = getRandomInt(2, 5);
+          display = Array(count).fill(a).join(' + ');
+          answer = `${a} × ${count}`;
+          questionKey = generateKey(a, count, 'sum');
+          
+          let opts = new Set();
+          opts.add(answer);
+          while(opts.size < 4) {
+            let a2 = getRandomInt(2, 5);
+            let c2 = getRandomInt(2, 4);
+            let candidate = `${a2} × ${c2}`;
+            if (candidate !== answer) opts.add(candidate);
+          }
+          options = shuffleArray([...opts]);
+          answerType = 'expression';
         }
-        options = shuffleArray([...opts]);
-        return { display, answer, options, answerType: 'expression' };
-      }
-      else if (type === 'multiplication') {
-        if (max === 10) {
-          a = Math.floor(Math.random() * 10) + 1;
-          b = Math.floor(Math.random() * 10) + 1;
-        } else {
-          a = Math.floor(Math.random() * max) + 1;
-          b = Math.floor(Math.random() * max) + 1;
-        }
-        if (level === 3 && Math.random() > 0.7) {
-          if (Math.random() > 0.5) a = 0; else b = 0;
-        }
-        answer = a * b;
-        display = `${a} × ${b}`;
-        let opts = new Set();
-        opts.add(answer);
-        while(opts.size < 4) {
-          let candidate = answer + Math.floor(Math.random() * 9) - 4;
-          if (candidate < 0) candidate = Math.abs(candidate) % 20;
-          if (candidate !== answer && candidate >= 0 && candidate <= 100) opts.add(candidate);
-        }
-        options = shuffleArray([...opts]);
-        return { display, answer, options, answerType: 'number' };
-      }
-      else if (type === 'division') {
-        if (max === 10) {
-          b = Math.floor(Math.random() * 9) + 1;
-          let quotient = Math.floor(Math.random() * 10) + 1;
-          a = b * quotient;
-          if (a > 100) { a = 81; b=9; quotient=9; }
-          answer = quotient;
-          display = `${a} ÷ ${b}`;
-        } else {
-          b = Math.floor(Math.random() * (max-1)) + 1;
-          let quotient = Math.floor(Math.random() * (max-1)) + 1;
-          a = b * quotient;
-          if (a > 30) { a = b * (Math.floor(Math.random()*4)+1); }
-          answer = quotient;
-          display = `${a} ÷ ${b}`;
-        }
-        let opts = new Set();
-        opts.add(answer);
-        while(opts.size < 4) {
-          let candidate = answer + Math.floor(Math.random() * 7) - 3;
-          if (candidate < 0) candidate = Math.abs(candidate) % 10 + 1;
-          if (candidate !== answer && candidate >= 0 && candidate <= 20) opts.add(candidate);
-        }
-        options = shuffleArray([...opts]);
-        return { display, answer, options, answerType: 'number' };
-      }
-      else if (type === 'mixed') {
-        if (Math.random() > 0.5) {
-          a = Math.floor(Math.random() * 9) + 2;
-          b = Math.floor(Math.random() * 9) + 2;
-          if (a*b > 100) { a= Math.floor(Math.random()*7)+2; b=Math.floor(Math.random()*7)+2; }
+        else if (type === 'multiplication') {
+          let nums = [1,2,3,4,5,6,7,8,9];
+          if (max === 5) nums = [1,2,3,4,5];
+          a = getRandomFromArray(nums);
+          b = getRandomFromArray(nums);
+          if (level === 3 && Math.random() > 0.6) {
+            if (Math.random() > 0.5) a = 0; else b = 0;
+          }
+          // Для уровня 3 (до 10) добавляем больше 6,7,8,9
+          if (level === 3 && Math.random() > 0.4) {
+            a = getRandomFromArray([6,7,8,9]);
+            b = getRandomFromArray([2,3,4,5,6,7,8,9]);
+          }
           answer = a * b;
           display = `${a} × ${b}`;
-        } else {
-          b = Math.floor(Math.random() * 8) + 2;
-          let quotient = Math.floor(Math.random() * 8) + 2;
+          questionKey = generateKey(a, b, 'mul');
+          
+          let opts = new Set();
+          opts.add(answer);
+          while(opts.size < 4) {
+            let candidate = answer + getRandomInt(-5, 5);
+            if (candidate < 0) candidate = Math.abs(candidate) % 20;
+            if (candidate !== answer && candidate >= 0 && candidate <= 100) opts.add(candidate);
+          }
+          options = shuffleArray([...opts]);
+          answerType = 'number';
+        }
+        else if (type === 'division') {
+          let nums = [1,2,3,4,5,6,7,8,9];
+          if (max === 5) nums = [1,2,3,4,5];
+          b = getRandomFromArray(nums);
+          let quotient = getRandomFromArray(nums);
           a = b * quotient;
-          if (a > 100) { a = 56; b=7; quotient=8; }
+          if (a > 100) { a = 81; b=9; quotient=9; }
+          if (max === 5 && a > 30) { 
+            b = getRandomFromArray([2,3,4,5]);
+            quotient = getRandomFromArray([2,3,4,5]);
+            a = b * quotient;
+          }
           answer = quotient;
           display = `${a} ÷ ${b}`;
+          questionKey = generateKey(a, b, 'div');
+          
+          let opts = new Set();
+          opts.add(answer);
+          while(opts.size < 4) {
+            let candidate = answer + getRandomInt(-3, 3);
+            if (candidate < 0) candidate = Math.abs(candidate) % 10 + 1;
+            if (candidate !== answer && candidate >= 0 && candidate <= 20) opts.add(candidate);
+          }
+          options = shuffleArray([...opts]);
+          answerType = 'number';
         }
-        let opts = new Set();
-        opts.add(answer);
-        while(opts.size < 4) {
-          let candidate = answer + Math.floor(Math.random() * 9) - 4;
-          if (candidate < 0) candidate = Math.abs(candidate) % 25 + 1;
-          if (candidate !== answer && candidate >= 0 && candidate <= 100) opts.add(candidate);
+        else if (type === 'mixed') {
+          let nums = [2,3,4,5,6,7,8,9];
+          if (Math.random() > 0.5) {
+            a = getRandomFromArray(nums);
+            b = getRandomFromArray(nums);
+            if (a*b > 100) { a = getRandomFromArray([2,3,4,5,6,7,8,9]); b = getRandomFromArray([2,3,4,5]); }
+            answer = a * b;
+            display = `${a} × ${b}`;
+            questionKey = generateKey(a, b, 'mul');
+          } else {
+            b = getRandomFromArray(nums);
+            let quotient = getRandomFromArray(nums);
+            a = b * quotient;
+            if (a > 100) { a = 56; b=7; quotient=8; }
+            answer = quotient;
+            display = `${a} ÷ ${b}`;
+            questionKey = generateKey(a, b, 'div');
+          }
+          let opts = new Set();
+          opts.add(answer);
+          while(opts.size < 4) {
+            let candidate = answer + getRandomInt(-4, 4);
+            if (candidate < 0) candidate = Math.abs(candidate) % 25 + 1;
+            if (candidate !== answer && candidate >= 0 && candidate <= 100) opts.add(candidate);
+          }
+          options = shuffleArray([...opts]);
+          answerType = 'number';
         }
-        options = shuffleArray([...opts]);
-        return { display, answer, options, answerType: 'number' };
-      }
-      return { display: '1+1', answer: 2, options: [1,2,3,4], answerType: 'number' };
+        // Проверяем, не было ли такого вопроса недавно
+      } while (state.lastQuestions.includes(questionKey) && attempts < 20);
+      
+      // Сохраняем последние 5 вопросов
+      state.lastQuestions.push(questionKey);
+      if (state.lastQuestions.length > 5) state.lastQuestions.shift();
+      
+      return { display, answer, options, answerType };
     }
 
-    // ---- render round ----
     function renderRound() {
       const level = state.currentLevel;
       const round = state.round;
@@ -478,7 +515,7 @@
       optionsContainer.innerHTML = '';
       const opts = q.options;
       state.optionElements = [];
-      opts.forEach((opt, idx) => {
+      opts.forEach((opt) => {
         const btn = document.createElement('div');
         btn.className = 'option-btn';
         btn.textContent = opt;
@@ -540,6 +577,7 @@
           setTimeout(() => {
             state.lives = 3;
             state.round = 0;
+            state.lastQuestions = [];
             updateTopBar();
             showMainMenu();
           }, 1500);
@@ -585,6 +623,7 @@
       levelCompleteMsg.style.display = 'block';
       levelCompleteMsg.innerHTML = `🎉 Уровень пройден! +${earned} кубок(а)<br>${teacherMsg}`;
       nextRoundBtn.style.display = 'none';
+      state.lastQuestions = [];
     }
 
     function updateTopBar() {
@@ -595,7 +634,6 @@
       globalCups.textContent = state.cups;
     }
 
-    // ---- СОХРАНЕНИЕ ПРОГРЕССА ----
     function saveProgress() {
       const data = {
         cups: state.cups,
@@ -623,15 +661,18 @@
 
     function saveStudentProgress() {
       const all = JSON.parse(localStorage.getItem('mathTrainerAllStudents') || '{}');
-      if (!studentName) return;
-      all[studentName] = {
+      if (!studentName || !studentSchool || !studentClass) return;
+      const key = `${studentSchool}||${studentClass.toUpperCase()}||${studentName}`;
+      all[key] = {
+        school: studentSchool,
+        class: studentClass.toUpperCase(),
+        name: studentName,
         cups: state.cups,
         levelCups: state.levelCups
       };
       localStorage.setItem('mathTrainerAllStudents', JSON.stringify(all));
     }
 
-    // ---- show main menu ----
     function showMainMenu() {
       mainMenu.style.display = 'block';
       gameScreen.style.display = 'none';
@@ -639,6 +680,7 @@
       updateTopBar();
       state.round = 0;
       state.levelCompleted = false;
+      state.lastQuestions = [];
     }
 
     function renderLevelGrid() {
@@ -668,6 +710,7 @@
       state.round = 0;
       state.lives = 3;
       state.levelCompleted = false;
+      state.lastQuestions = [];
       mainMenu.style.display = 'none';
       gameScreen.style.display = 'flex';
       if (idx === 0) {
@@ -696,26 +739,22 @@
       }
     });
 
-    // ---- VK INIT ----
-    // Проверяем, что мы внутри VK приложения
     if (window.location.search.includes('vk_app_id') || window.location.hostname.includes('vk.com')) {
       initVK();
     } else {
-      // Показываем кнопку "Поделиться" как обычную ссылку
       document.getElementById('shareBtn').style.display = 'block';
     }
 
-    // ---- event listeners ----
     backToMenuBtn.addEventListener('click', () => {
       if (state.round < 10) {
         if (!confirm('Вернуться в меню? Прогресс уровня не сохранится.')) return;
       }
       state.lives = 3;
       state.round = 0;
+      state.lastQuestions = [];
       showMainMenu();
     });
 
-    // ---- init ----
     loadProgress();
     showMainMenu();
   })();
