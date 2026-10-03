@@ -3,259 +3,169 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Таблица умножения — 2 класс</title>
+  <title>Таблица умножения — интерактивный тренажёр</title>
   
   <!--
     © 2026 Предеина Нина Владимировна (predeinanina10@gmail.com)
     Лицензия: MIT License
   -->
   
-  <!-- VK Bridge для работы внутри VK Mini Apps -->
   <script src="https://vk.com/js/api/openapi.js?169"></script>
   
   <style>
-    * {
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
-      user-select: none;
-    }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, system-ui, sans-serif; user-select: none; }
     body {
-      margin: 0;
-      min-height: 100vh;
+      margin: 0; min-height: 100vh;
       background: linear-gradient(145deg, #f7f0fc 0%, #e8dff5 100%);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 16px;
+      display: flex; justify-content: center; align-items: center; padding: 16px;
     }
     #app {
-      max-width: 800px;
-      width: 100%;
-      background: rgba(255, 255, 255, 0.5);
+      max-width: 800px; width: 100%;
+      background: rgba(255,255,255,0.5);
       backdrop-filter: blur(4px);
       border-radius: 64px 64px 48px 48px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), 0 8px 16px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2), 0 8px 16px rgba(0,0,0,0.1);
       padding: 24px 20px 32px;
-      border: 2px solid rgba(255, 255, 255, 0.6);
-      transition: all 0.2s;
+      border: 2px solid rgba(255,255,255,0.6);
     }
-    h1, h2, h3 {
-      text-align: center;
-      margin: 6px 0;
-      color: #2d1b4e;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-    }
-    h1 {
-      font-size: 2.1rem;
-      text-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .main-menu {
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-      padding: 8px 4px;
-    }
-    .level-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-      margin: 20px 0 10px;
-    }
+    h1 { font-size: 2.1rem; text-align: center; color: #2d1b4e; margin: 6px 0;
+      display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
+    .main-menu { display: flex; flex-direction: column; gap: 18px; padding: 8px 4px; }
+    .level-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 20px 0 10px; }
     .level-card {
-      background: #ffffffdd;
-      backdrop-filter: blur(2px);
-      border-radius: 28px;
-      padding: 12px 6px;
-      text-align: center;
+      background: #ffffffdd; border-radius: 28px; padding: 12px 6px; text-align: center;
       box-shadow: 0 6px 0 #b7a1d4, 0 8px 16px rgba(0,0,0,0.1);
-      cursor: pointer;
-      transition: 0.12s ease;
-      border: 2px solid #d8c9f0;
-      font-weight: 600;
-      color: #2a1b3f;
-      font-size: 1rem;
+      cursor: pointer; transition: 0.12s ease; border: 2px solid #d8c9f0;
+      font-weight: 600; color: #2a1b3f; font-size: 1rem;
     }
     .level-card:active { transform: scale(0.94); box-shadow: 0 2px 0 #b7a1d4; }
-    .level-card.locked {
-      opacity: 0.5;
-      filter: grayscale(0.6);
-      pointer-events: none;
-    }
-    .level-card .trophy {
-      font-size: 1.6rem;
-      display: block;
-    }
-    .level-card .stars {
-      font-size: 1.2rem;
-      letter-spacing: 2px;
-    }
-    .game-area {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-    }
+    .level-card.locked { opacity: 0.5; filter: grayscale(0.6); pointer-events: none; }
+    .level-card .trophy { font-size: 1.6rem; display: block; }
+    .level-card .stars { font-size: 1.2rem; letter-spacing: 2px; }
+    .game-area { display: flex; flex-direction: column; align-items: center; gap: 20px; }
     .top-bar {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      background: #302050cc;
-      backdrop-filter: blur(4px);
-      padding: 10px 18px;
-      border-radius: 60px;
-      color: white;
-      font-weight: 700;
-      font-size: 1.1rem;
-      flex-wrap: wrap;
-      align-items: center;
+      width: 100%; display: flex; justify-content: space-between;
+      background: #302050cc; backdrop-filter: blur(4px);
+      padding: 10px 18px; border-radius: 60px; color: white;
+      font-weight: 700; font-size: 1.1rem; flex-wrap: wrap; align-items: center;
     }
     .top-bar span { background: #1e1233; padding: 4px 16px; border-radius: 40px; }
     .expression-box {
-      background: #ffffffea;
-      width: 100%;
-      padding: 20px 8px;
-      border-radius: 60px;
-      font-size: 2.8rem;
-      font-weight: 700;
-      text-align: center;
-      letter-spacing: 3px;
-      color: #1f0936;
-      border: 4px solid #cbb5e6;
-      box-shadow: inset 0 -6px 0 #a587c9;
-      margin: 8px 0;
-      word-break: break-word;
-      line-height: 1.3;
+      background: #ffffffea; width: 100%; padding: 20px 8px; border-radius: 60px;
+      font-size: 2.8rem; font-weight: 700; text-align: center; letter-spacing: 3px;
+      color: #1f0936; border: 4px solid #cbb5e6; box-shadow: inset 0 -6px 0 #a587c9;
+      margin: 8px 0; word-break: break-word; line-height: 1.3;
     }
-    .options-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      width: 100%;
-      margin: 12px 0;
-    }
+    .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; margin: 12px 0; }
     .option-btn {
-      background: #fcf9ff;
-      border: 3px solid #b698da;
-      border-radius: 60px;
-      padding: 18px 6px;
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #2d0f4a;
-      box-shadow: 0 6px 0 #8466ac;
-      transition: 0.08s linear;
-      text-align: center;
-      cursor: pointer;
+      background: #fcf9ff; border: 3px solid #b698da; border-radius: 60px;
+      padding: 18px 6px; font-size: 1.5rem; font-weight: 700; color: #2d0f4a;
+      box-shadow: 0 6px 0 #8466ac; transition: 0.08s linear; text-align: center; cursor: pointer;
     }
     .option-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #8466ac; }
     .option-btn.correct-glow { background: #b7f0b7; border-color: #2b7a2b; }
     .option-btn.wrong-glow { background: #fbb5b5; border-color: #a13030; }
     .info-msg {
-      background: #ffecb3;
-      padding: 12px 16px;
-      border-radius: 60px;
-      font-weight: 600;
-      color: #5c3d00;
-      border-left: 6px solid #ffa500;
-      width: 100%;
-      text-align: center;
+      background: #ffecb3; padding: 12px 16px; border-radius: 60px;
+      font-weight: 600; color: #5c3d00; border-left: 6px solid #ffa500;
+      width: 100%; text-align: center;
     }
     .btn {
-      background: #3e2862;
-      border: none;
-      border-radius: 60px;
-      padding: 14px 28px;
-      color: white;
-      font-weight: 700;
-      font-size: 1.2rem;
-      box-shadow: 0 8px 0 #1f0f35;
-      transition: 0.08s linear;
-      cursor: pointer;
-      width: fit-content;
-      margin: 6px auto;
+      background: #3e2862; border: none; border-radius: 60px; padding: 14px 28px;
+      color: white; font-weight: 700; font-size: 1.2rem; box-shadow: 0 8px 0 #1f0f35;
+      transition: 0.08s linear; cursor: pointer; width: fit-content; margin: 6px auto;
       border: 2px solid #b28bde;
     }
     .btn:active { transform: translateY(4px); box-shadow: 0 3px 0 #1f0f35; }
-    .btn-reset {
-      background: #b33;
-      box-shadow: 0 8px 0 #6a1a1a;
-    }
+    .btn-reset { background: #b33; box-shadow: 0 8px 0 #6a1a1a; }
     .btn-reset:active { box-shadow: 0 3px 0 #6a1a1a; }
     .footer {
-      margin-top: 16px;
-      font-size: 0.9rem;
-      color: #3f2b5a;
-      text-align: center;
-      border-top: 2px dashed #b39ddb;
-      padding-top: 14px;
+      margin-top: 16px; font-size: 0.9rem; color: #3f2b5a; text-align: center;
+      border-top: 2px dashed #b39ddb; padding-top: 14px;
     }
-    .lives {
-      display: flex;
-      gap: 8px;
-      font-size: 1.8rem;
-      line-height: 1;
-    }
-    .cup-badge {
-      background: gold;
-      color: #1f0936;
-      padding: 0 12px;
-      border-radius: 40px;
-      font-weight: 800;
-    }
+    .lives { display: flex; gap: 8px; font-size: 1.8rem; line-height: 1; }
     .disabled-click { pointer-events: none; opacity: 0.8; }
     .modal-message {
-      background: #1d0d2e;
-      color: white;
-      padding: 20px 18px;
-      border-radius: 60px;
-      font-weight: 600;
-      font-size: 1.3rem;
-      text-align: center;
-      border: 4px solid #ffd966;
+      background: #1d0d2e; color: white; padding: 20px 18px; border-radius: 60px;
+      font-weight: 600; font-size: 1.3rem; text-align: center; border: 4px solid #ffd966;
     }
     .vk-share-btn {
-      background: #0077ff;
-      border: none;
-      border-radius: 60px;
-      padding: 12px 24px;
-      color: white;
-      font-weight: 700;
-      font-size: 1rem;
-      cursor: pointer;
-      margin-top: 10px;
-      box-shadow: 0 4px 0 #0055cc;
+      background: #0077ff; border: none; border-radius: 60px; padding: 12px 24px;
+      color: white; font-weight: 700; font-size: 1rem; cursor: pointer;
+      margin-top: 10px; box-shadow: 0 4px 0 #0055cc;
     }
     .vk-share-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #0055cc; }
     .vk-badge {
-      display: inline-block;
-      background: #0077ff;
-      color: white;
-      padding: 2px 12px;
-      border-radius: 20px;
-      font-size: 0.7rem;
-      margin-left: 8px;
+      display: inline-block; background: #0077ff; color: white;
+      padding: 2px 12px; border-radius: 20px; font-size: 0.7rem; margin-left: 8px;
     }
-    .button-group {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 12px;
-      margin-top: 8px;
+    .button-group { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 8px; }
+    .counter-badge {
+      background: #fff3cd; color: #664d03; padding: 6px 16px; border-radius: 40px;
+      font-weight: 700; font-size: 0.95rem; text-align: center;
+      border: 2px solid #ffd966;
     }
+
+    /* ---- МОДАЛЬНОЕ ОКНО РЕГИСТРАЦИИ ---- */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(45, 27, 78, 0.7);
+      backdrop-filter: blur(6px);
+      display: flex; justify-content: center; align-items: center;
+      z-index: 1000; padding: 16px;
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal-card {
+      background: white; border-radius: 48px; padding: 32px 24px;
+      max-width: 460px; width: 100%;
+      box-shadow: 0 24px 48px rgba(0,0,0,0.3);
+      border: 4px solid #b698da;
+      max-height: 90vh; overflow-y: auto;
+    }
+    .modal-card h2 {
+      color: #2d1b4e; text-align: center; margin: 0 0 8px;
+      font-size: 1.6rem;
+    }
+    .modal-card .modal-sub {
+      text-align: center; color: #6a5a8a; font-size: 1rem;
+      margin-bottom: 24px;
+    }
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      display: block; font-weight: 700; color: #2d1b4e;
+      margin-bottom: 6px; font-size: 0.95rem;
+    }
+    .form-group input, .form-group select {
+      width: 100%; padding: 14px 18px;
+      border: 3px solid #d8c9f0; border-radius: 40px;
+      font-size: 1.1rem; background: #fcf9ff;
+      transition: 0.15s;
+    }
+    .form-group input:focus, .form-group select:focus {
+      outline: none; border-color: #8466ac; background: white;
+    }
+    .form-group input::placeholder { color: #b8a8d0; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .modal-card .btn { width: 100%; margin-top: 12px; font-size: 1.2rem; padding: 16px; }
+    .error-msg {
+      background: #ffe0e0; color: #a13030; padding: 10px 16px;
+      border-radius: 20px; font-weight: 600; font-size: 0.9rem;
+      text-align: center; margin-bottom: 12px; display: none;
+    }
+    .error-msg.show { display: block; }
+
     @media (max-width: 500px) {
       .expression-box { font-size: 2.0rem; }
       .option-btn { font-size: 1.2rem; padding: 14px 4px; }
       .level-grid { grid-template-columns: repeat(2, 1fr); }
+      .form-row { grid-template-columns: 1fr; }
+      .modal-card { border-radius: 32px; padding: 24px 18px; }
     }
   </style>
 </head>
 <body>
 <div id="app">
+  <!-- ГЛАВНОЕ МЕНЮ -->
   <div id="mainMenu" class="main-menu">
     <h1>🏆 Карта уровней <span class="vk-badge" id="vkBadge" style="display:none;">VK</span></h1>
     <div class="level-grid" id="levelGrid"></div>
@@ -263,6 +173,7 @@
       <span>❤️ <span id="globalLives">3</span></span>
       <span>🏅 <span id="globalCups">0</span></span>
     </div>
+    <div class="counter-badge" id="counterBadge">👥 Играли: 0 учеников</div>
     <div class="button-group">
       <button class="vk-share-btn" id="shareBtn" style="display:none;">📤 Поделиться результатом</button>
       <button class="btn btn-reset" id="resetBtn">🔄 Начать заново</button>
@@ -270,6 +181,7 @@
     <div class="footer">© Предеина Н.В. • predeinanina10@gmail.com • MIT License</div>
   </div>
 
+  <!-- ИГРОВОЙ ЭКРАН -->
   <div id="gameScreen" style="display: none;" class="game-area">
     <div class="top-bar">
       <span id="levelTitle">Уровень 1</span>
@@ -286,16 +198,114 @@
     <div style="font-size: 0.9rem; margin-top: 6px; color: #402a5a;">Предеина Нина Владимировна</div>
   </div>
 </div>
+
+<!-- МОДАЛЬНОЕ ОКНО РЕГИСТРАЦИИ -->
+<div id="registrationModal" class="modal-overlay hidden">
+  <div class="modal-card">
+    <h2>👋 Добро пожаловать!</h2>
+    <p class="modal-sub">Заполни данные, чтобы начать играть</p>
+    
+    <div id="regError" class="error-msg"></div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Фамилия</label>
+        <input type="text" id="regLastName" placeholder="Иванов" maxlength="30">
+      </div>
+      <div class="form-group">
+        <label>Имя</label>
+        <input type="text" id="regFirstName" placeholder="Иван" maxlength="30">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>🏫 Школа</label>
+      <select id="regSchoolSelect">
+        <option value="">-- Выберите школу --</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>📚 Класс</label>
+      <select id="regClass">
+        <option value="">-- Выберите класс --</option>
+        <option>1А</option><option>1Б</option><option>1В</option>
+        <option>2А</option><option>2Б</option><option>2В</option>
+        <option>3А</option><option>3Б</option><option>3В</option>
+        <option>4А</option><option>4Б</option><option>4В</option>
+      </select>
+    </div>
+
+    <button class="btn" id="regStartBtn">🚀 Начать игру</button>
+  </div>
+</div>
+
 <script>
   (function(){
-    // ---- AUTHOR ----
     const AUTHOR = "Предеина Нина Владимировна";
     const EMAIL = "predeinanina10@gmail.com";
 
+    // ---- СПИСОК ОБРАЗОВАТЕЛЬНЫХ ОРГАНИЗАЦИЙ Г. КРАСНОГОРСКА ----
+    const SCHOOLS_LIST = [
+      "МБОУ Гимназия №2 г. Красногорска",
+      "МБОУ СОШ №18 г. Красногорска",
+      "МБОУ СОШ №15 г. Красногорска",
+      "МБОУ НОШ №17 г. Красногорска",
+      "МБОУ СОШ №12 г. Красногорска",
+      "МБОУ СОШ №1 г. Красногорска",
+      "МБОУ СОШ №11 г. Красногорска",
+      "МБОУ СОШ №19 г. Красногорска",
+      "МБОУ СОШ №14 микрор-на Павшинская пойма г. Красногорска",
+      "МБОУ СОШ №10 с углубленным изучением отдельных предметов г. Красногорска",
+      "МБОУ Лицей №4 г. Красногорска",
+      "МБОУ СОШ №16 г. Красногорска",
+      "МБОУ гимназия №6 г. Красногорска",
+      "МБОУ гимназия № 7 им. Д. П. Яковлева г. Красногорска",
+      "МБОУ Гимназия №5 г. Красногорска",
+      "МБОУ Опалиховская гимназия",
+      "МБОУ СОШ № 8 г. Красногорска Московской области",
+      "МБОУ СОШ №9 г. Красногорска",
+      "МБОУ Образовательный центр Полёт",
+      "МБОУ СОШ №20 Красногорского муниципального района",
+      "МБОУ СОШ №3 г. Красногорска",
+      "ЧОУ СОШ Исток",
+      "МБОУ Начальная школа-детский сад",
+      "МБОУ Ангеловская СОШ",
+      "МБОУ СОШ Мозаика",
+      "ЧУ ОО Школа Екатерининский лицей",
+      "ЧОУ ОШ Светлые Горы",
+      "ЧОУ СОШ Международная английская школа",
+      "Начальная школа МИР",
+      "НОЧУ Свято-Георгиевская гимназия",
+      "Семейная школа Олимп и Я",
+      "МБОУ Образовательный центр Созвездие",
+      "Детский клуб Изумрудный город",
+      "ГБ ПОУ МО Красногорский колледж",
+      "ООО Академия Современного Образования",
+      "АНО ДО ОСТРОВ ДЕТСТВА",
+      "МБДОУ Детский сад 9",
+      "Детский развивающий центр Академия нескучных наук",
+      "МБДОУ детский сад №8",
+      "ЧОУ школа с углубленным изучением иностранных языков Мир знаний",
+      "ОАНО Школа Спутник",
+      "ЧОУ Международный лицей информатики, экономики и права",
+      "Центр семейного образования Гусёнок",
+      "МБДОУ Детский сад 39",
+      "МБДОУ детский сад № 38",
+      "МБДОУ детский сад №49",
+      "SmartTeam",
+      "МБДОУ Детский сад №28",
+      "АНО обучения детей Наследие",
+      "Частная школа Под солнцем",
+      "МБДОУ детский сад №27 Чароит",
+      "Клуб поддержки семейного образования Хорошая школа",
+      "Тестовая школа Красногорск",
+      "МБУ ДО Центр творчества",
+      "Частная семейная школа СОВА"
+    ];
+
     // ---------- VK BRIDGE ----------
     let vkReady = false;
-    let vkUser = null;
-    
     function initVK() {
       if (typeof window.VK !== 'undefined') {
         try {
@@ -309,26 +319,26 @@
 
     // ---------- LEVEL CONFIG ----------
     const LEVELS = [
-      { id:0, name:"Замени сложение", short:"замена +", type:"sumToMul", maxNum:5 },
-      { id:1, name:"Умножение до 5", short:"× до 5", type:"multiplication", maxNum:5 },
-      { id:2, name:"Деление до 5", short:"÷ до 5", type:"division", maxNum:5 },
-      { id:3, name:"Умножение до 10 и 0", short:"× до 10", type:"multiplication", maxNum:10 },
-      { id:4, name:"Деление (вся табл.)", short:"÷ вся", type:"division", maxNum:10 },
-      { id:5, name:"× ÷ до 100", short:"×÷ 100", type:"mixed", maxNum:10 }
+      { id:0, name:"Замени сложение", type:"sumToMul", maxNum:5 },
+      { id:1, name:"Умножение до 5", type:"multiplication", maxNum:5 },
+      { id:2, name:"Деление до 5", type:"division", maxNum:5 },
+      { id:3, name:"Умножение до 10 и 0", type:"multiplication", maxNum:10 },
+      { id:4, name:"Деление (вся табл.)", type:"division", maxNum:10 },
+      { id:5, name:"× ÷ до 100", type:"mixed", maxNum:10 }
     ];
 
     let state = {
-      currentLevel: 0,
-      round: 0,
-      lives: 3,
-      cups: 0,
-      levelCups: [0,0,0,0,0,0],
-      unlockedLevel: 0,
-      correctAnswer: null,
-      answered: false,
-      optionElements: [],
+      currentLevel: 0, round: 0, lives: 3, cups: 0,
+      levelCups: [0,0,0,0,0,0], unlockedLevel: 0,
+      correctAnswer: null, answered: false, optionElements: [],
       lastQuestions: []
     };
+
+    // ---- ДАННЫЕ УЧЕНИКА ----
+    let studentLastName = localStorage.getItem('mathTrainerLastName') || '';
+    let studentFirstName = localStorage.getItem('mathTrainerFirstName') || '';
+    let studentSchool = localStorage.getItem('mathTrainerStudentSchool') || '';
+    let studentClass = localStorage.getItem('mathTrainerStudentClass') || '';
 
     // DOM refs
     const mainMenu = document.getElementById('mainMenu');
@@ -347,56 +357,122 @@
     const nextRoundBtn = document.getElementById('nextRoundBtn');
     const backToMenuBtn = document.getElementById('backToMenuBtn');
     const resetBtn = document.getElementById('resetBtn');
+    const counterBadge = document.getElementById('counterBadge');
+    const registrationModal = document.getElementById('registrationModal');
+    const regLastName = document.getElementById('regLastName');
+    const regFirstName = document.getElementById('regFirstName');
+    const regSchoolSelect = document.getElementById('regSchoolSelect');
+    const regClass = document.getElementById('regClass');
+    const regStartBtn = document.getElementById('regStartBtn');
+    const regError = document.getElementById('regError');
 
-    // ---- ИМЯ, ШКОЛА И КЛАСС ----
-    let studentName = localStorage.getItem('mathTrainerStudentName');
-    let studentSchool = localStorage.getItem('mathTrainerStudentSchool');
-    let studentClass = localStorage.getItem('mathTrainerStudentClass');
+    // ---- СЧЁТЧИК УЧЕНИКОВ ----
+    function updateCounter() {
+      const all = JSON.parse(localStorage.getItem('mathTrainerAllStudents') || '{}');
+      counterBadge.textContent = `👥 Играли: ${Object.keys(all).length} учеников`;
+    }
+
+    // ---- ЗАГРУЗКА СПИСКА ШКОЛ ----
+    function loadSchoolSelect() {
+      regSchoolSelect.innerHTML = '<option value="">-- Выберите школу --</option>';
+      SCHOOLS_LIST.forEach(school => {
+        const opt = document.createElement('option');
+        opt.value = school;
+        opt.textContent = school;
+        regSchoolSelect.appendChild(opt);
+      });
+    }
+
+    // ---- ОТКРЫТИЕ МОДАЛЬНОГО ОКНА ----
+    function openRegistration() {
+      registrationModal.classList.remove('hidden');
+      regError.classList.remove('show');
+      regLastName.value = '';
+      regFirstName.value = '';
+      regClass.value = '';
+      loadSchoolSelect();
+      regLastName.focus();
+    }
+
+    // ---- ЗАКРЫТИЕ МОДАЛЬНОГО ОКНА ----
+    function closeRegistration() {
+      registrationModal.classList.add('hidden');
+    }
+
+    // ---- СОХРАНЕНИЕ ДАННЫХ УЧЕНИКА ----
+    regStartBtn.addEventListener('click', function() {
+      const lastName = regLastName.value.trim();
+      const firstName = regFirstName.value.trim();
+      const school = regSchoolSelect.value;
+      const cls = regClass.value;
+
+      if (!lastName || !firstName) {
+        regError.textContent = '⚠️ Введите фамилию и имя';
+        regError.classList.add('show');
+        return;
+      }
+      if (!school) {
+        regError.textContent = '⚠️ Выберите школу из списка';
+        regError.classList.add('show');
+        return;
+      }
+      if (!cls) {
+        regError.textContent = '⚠️ Выберите класс';
+        regError.classList.add('show');
+        return;
+      }
+
+      localStorage.setItem('mathTrainerLastName', lastName);
+      localStorage.setItem('mathTrainerFirstName', firstName);
+      localStorage.setItem('mathTrainerStudentSchool', school);
+      localStorage.setItem('mathTrainerStudentClass', cls);
+
+      studentLastName = lastName;
+      studentFirstName = firstName;
+      studentSchool = school;
+      studentClass = cls;
+
+      const all = JSON.parse(localStorage.getItem('mathTrainerAllStudents') || '{}');
+      const key = `${school}||${cls}||${lastName} ${firstName}`;
+      if (!all[key]) {
+        all[key] = {
+          school: school,
+          class: cls,
+          name: `${lastName} ${firstName}`,
+          cups: 0,
+          levelCups: [0,0,0,0,0,0]
+        };
+        localStorage.setItem('mathTrainerAllStudents', JSON.stringify(all));
+      }
+
+      updateCounter();
+      closeRegistration();
+      showMainMenu();
+    });
 
     // ---- КНОПКА "НАЧАТЬ ЗАНОВО" ----
     resetBtn.addEventListener('click', function() {
-      if (confirm('🔄 Вы уверены, что хотите начать игру заново?\nВесь прогресс будет удалён!')) {
-        // Удаляем все данные
+      if (confirm('🔄 Вы уверены, что хотите начать заново?\nВесь прогресс будет удалён!')) {
         localStorage.removeItem('mathTrainerProgress');
-        localStorage.removeItem('mathTrainerStudentName');
+        localStorage.removeItem('mathTrainerLastName');
+        localStorage.removeItem('mathTrainerFirstName');
         localStorage.removeItem('mathTrainerStudentSchool');
         localStorage.removeItem('mathTrainerStudentClass');
-        // Сбрасываем состояние
         state.cups = 0;
         state.levelCups = [0,0,0,0,0,0];
         state.unlockedLevel = 0;
         state.lives = 3;
         state.round = 0;
         state.lastQuestions = [];
-        // Обновляем интерфейс
+        studentLastName = '';
+        studentFirstName = '';
+        studentSchool = '';
+        studentClass = '';
         updateTopBar();
         renderLevelGrid();
-        // Перезапрашиваем имя
-        studentName = null;
-        studentSchool = null;
-        studentClass = null;
-        // Показываем главное меню
-        showMainMenu();
-        // Обновляем страницу, чтобы запросить имя
-        location.reload();
+        openRegistration();
       }
     });
-
-    // ---- Запрос имени при первом запуске ----
-    if (!studentName) {
-      studentName = prompt('👋 Введите своё имя:');
-      if (studentName) {
-        studentSchool = prompt('🏫 Введите номер школы:');
-        if (studentSchool) {
-          studentClass = prompt('📚 Введите свой класс (например, 2А):');
-          if (studentClass) {
-            localStorage.setItem('mathTrainerStudentName', studentName);
-            localStorage.setItem('mathTrainerStudentSchool', studentSchool.trim());
-            localStorage.setItem('mathTrainerStudentClass', studentClass.trim().toUpperCase());
-          }
-        }
-      }
-    }
 
     function shuffleArray(arr) {
       for (let i = arr.length - 1; i > 0; i--) {
@@ -405,14 +481,8 @@
       }
       return arr;
     }
-
-    function getRandomInt(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-
-    function getRandomFromArray(arr) {
-      return arr[Math.floor(Math.random() * arr.length)];
-    }
+    function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    function getRandomFromArray(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
     // ---- ГЕНЕРАЦИЯ ВОПРОСОВ ----
     function generateQuestion(level) {
@@ -422,7 +492,6 @@
       let answerType = 'number';
       let attempts = 0;
       let questionKey = '';
-
       const generateKey = (a, b, op) => `${a}_${b}_${op}`;
 
       do {
@@ -434,9 +503,7 @@
           display = Array(count).fill(a).join(' + ');
           answer = `${a} × ${count}`;
           questionKey = generateKey(a, count, 'sum');
-          
-          let opts = new Set();
-          opts.add(answer);
+          let opts = new Set(); opts.add(answer);
           while(opts.size < 4) {
             let a2 = getRandomInt(2, 5);
             let c2 = getRandomInt(2, 4);
@@ -451,19 +518,14 @@
           if (max === 5) nums = [1,2,3,4,5];
           a = getRandomFromArray(nums);
           b = getRandomFromArray(nums);
-          if (level === 3 && Math.random() > 0.6) {
-            if (Math.random() > 0.5) a = 0; else b = 0;
-          }
+          if (level === 3 && Math.random() > 0.6) { if (Math.random() > 0.5) a = 0; else b = 0; }
           if (level === 3 && Math.random() > 0.4) {
             a = getRandomFromArray([6,7,8,9]);
             b = getRandomFromArray([2,3,4,5,6,7,8,9]);
           }
-          answer = a * b;
-          display = `${a} × ${b}`;
+          answer = a * b; display = `${a} × ${b}`;
           questionKey = generateKey(a, b, 'mul');
-          
-          let opts = new Set();
-          opts.add(answer);
+          let opts = new Set(); opts.add(answer);
           while(opts.size < 4) {
             let candidate = answer + getRandomInt(-5, 5);
             if (candidate < 0) candidate = Math.abs(candidate) % 20;
@@ -479,17 +541,10 @@
           let quotient = getRandomFromArray(nums);
           a = b * quotient;
           if (a > 100) { a = 81; b=9; quotient=9; }
-          if (max === 5 && a > 30) { 
-            b = getRandomFromArray([2,3,4,5]);
-            quotient = getRandomFromArray([2,3,4,5]);
-            a = b * quotient;
-          }
-          answer = quotient;
-          display = `${a} ÷ ${b}`;
+          if (max === 5 && a > 30) { b = getRandomFromArray([2,3,4,5]); quotient = getRandomFromArray([2,3,4,5]); a = b * quotient; }
+          answer = quotient; display = `${a} ÷ ${b}`;
           questionKey = generateKey(a, b, 'div');
-          
-          let opts = new Set();
-          opts.add(answer);
+          let opts = new Set(); opts.add(answer);
           while(opts.size < 4) {
             let candidate = answer + getRandomInt(-3, 3);
             if (candidate < 0) candidate = Math.abs(candidate) % 10 + 1;
@@ -501,23 +556,19 @@
         else if (type === 'mixed') {
           let nums = [2,3,4,5,6,7,8,9];
           if (Math.random() > 0.5) {
-            a = getRandomFromArray(nums);
-            b = getRandomFromArray(nums);
+            a = getRandomFromArray(nums); b = getRandomFromArray(nums);
             if (a*b > 100) { a = getRandomFromArray([2,3,4,5,6,7,8,9]); b = getRandomFromArray([2,3,4,5]); }
-            answer = a * b;
-            display = `${a} × ${b}`;
+            answer = a * b; display = `${a} × ${b}`;
             questionKey = generateKey(a, b, 'mul');
           } else {
             b = getRandomFromArray(nums);
             let quotient = getRandomFromArray(nums);
             a = b * quotient;
             if (a > 100) { a = 56; b=7; quotient=8; }
-            answer = quotient;
-            display = `${a} ÷ ${b}`;
+            answer = quotient; display = `${a} ÷ ${b}`;
             questionKey = generateKey(a, b, 'div');
           }
-          let opts = new Set();
-          opts.add(answer);
+          let opts = new Set(); opts.add(answer);
           while(opts.size < 4) {
             let candidate = answer + getRandomInt(-4, 4);
             if (candidate < 0) candidate = Math.abs(candidate) % 25 + 1;
@@ -527,35 +578,27 @@
           answerType = 'number';
         }
       } while (state.lastQuestions.includes(questionKey) && attempts < 20);
-      
+
       state.lastQuestions.push(questionKey);
       if (state.lastQuestions.length > 5) state.lastQuestions.shift();
-      
       return { display, answer, options, answerType };
     }
 
     function renderRound() {
       const level = state.currentLevel;
       const round = state.round;
-      if (round >= 10) {
-        finishLevel();
-        return;
-      }
-
+      if (round >= 10) { finishLevel(); return; }
       state.answered = false;
       feedbackArea.style.display = 'none';
       nextRoundBtn.style.display = 'none';
       levelCompleteMsg.style.display = 'none';
       optionsContainer.classList.remove('disabled-click');
-
       const q = generateQuestion(level);
       state.correctAnswer = q.answer;
       expressionDisplay.textContent = q.display;
-
       optionsContainer.innerHTML = '';
-      const opts = q.options;
       state.optionElements = [];
-      opts.forEach((opt) => {
+      q.options.forEach((opt) => {
         const btn = document.createElement('div');
         btn.className = 'option-btn';
         btn.textContent = opt;
@@ -564,7 +607,6 @@
         optionsContainer.appendChild(btn);
         state.optionElements.push(btn);
       });
-
       levelTitle.textContent = LEVELS[level].name;
       roundIndicator.textContent = `${round+1}/10`;
       updateTopBar();
@@ -573,13 +615,7 @@
     function onOptionClick(e, btn, correct, answerType) {
       if (state.answered) return;
       const selected = btn.dataset.value;
-      let isCorrect = false;
-      if (answerType === 'expression') {
-        isCorrect = (selected === correct);
-      } else {
-        isCorrect = (Number(selected) === Number(correct));
-      }
-
+      let isCorrect = answerType === 'expression' ? (selected === correct) : (Number(selected) === Number(correct));
       state.optionElements.forEach(b => {
         if (b.dataset.value == correct && answerType === 'expression') {
           if (b.textContent === correct) b.classList.add('correct-glow');
@@ -589,215 +625,9 @@
         if (b === btn && !isCorrect) b.classList.add('wrong-glow');
         else if (b === btn && isCorrect) b.classList.add('correct-glow');
       });
-
       state.answered = true;
       optionsContainer.classList.add('disabled-click');
-
       if (isCorrect) {
         feedbackArea.style.display = 'block';
         feedbackArea.textContent = '✅ Верно! Молодец!';
-        feedbackArea.style.background = '#c8f0c8';
-        setTimeout(() => {
-          if (state.round < 9) {
-            state.round++;
-            renderRound();
-          } else {
-            state.round = 10;
-            finishLevel();
-          }
-        }, 900);
-      } else {
-        state.lives--;
-        updateTopBar();
-        feedbackArea.style.display = 'block';
-        feedbackArea.textContent = `❌ Неверно. Правильный ответ: ${correct}`;
-        feedbackArea.style.background = '#fcc';
-        if (state.lives <= 0) {
-          feedbackArea.textContent += ' ❤️ Жизни кончились!';
-          setTimeout(() => {
-            state.lives = 3;
-            state.round = 0;
-            state.lastQuestions = [];
-            updateTopBar();
-            showMainMenu();
-          }, 1500);
-        } else {
-          setTimeout(() => {
-            if (state.round < 9) {
-              state.round++;
-              renderRound();
-            } else {
-              state.round = 10;
-              finishLevel();
-            }
-          }, 1200);
-        }
-      }
-    }
-
-    function finishLevel() {
-      state.levelCompleted = true;
-      let earned = 0;
-      if (state.lives > 0) {
-        earned = 1;
-        if (state.lives >= 2) earned = 2;
-        if (state.lives >= 3) earned = 3;
-      }
-      const prev = state.levelCups[state.currentLevel];
-      if (earned > prev) {
-        state.cups += (earned - prev);
-        state.levelCups[state.currentLevel] = earned;
-      }
-      if (state.currentLevel < 5) {
-        state.unlockedLevel = Math.max(state.unlockedLevel, state.currentLevel + 1);
-      }
-      updateTopBar();
-      saveProgress();
-      saveStudentProgress();
-
-      let teacherMsg = '';
-      if (state.currentLevel >= 1 && state.currentLevel <= 5) {
-        teacherMsg = '🧑‍🏫 Покажи прохождение учителю для выставления отметки!';
-      }
-
-      levelCompleteMsg.style.display = 'block';
-      levelCompleteMsg.innerHTML = `🎉 Уровень пройден! +${earned} кубок(а)<br>${teacherMsg}`;
-      nextRoundBtn.style.display = 'none';
-      state.lastQuestions = [];
-    }
-
-    function updateTopBar() {
-      const hearts = '❤️'.repeat(Math.max(0, state.lives)) + '🖤'.repeat(Math.max(0, 3-state.lives));
-      livesDisplay.textContent = hearts || '💔';
-      cupDisplay.textContent = `🏅${state.cups}`;
-      globalLives.textContent = state.lives;
-      globalCups.textContent = state.cups;
-    }
-
-    function saveProgress() {
-      const data = {
-        cups: state.cups,
-        levelCups: state.levelCups,
-        unlockedLevel: state.unlockedLevel,
-        lives: state.lives
-      };
-      localStorage.setItem('mathTrainerProgress', JSON.stringify(data));
-    }
-
-    function loadProgress() {
-      const saved = localStorage.getItem('mathTrainerProgress');
-      if (saved) {
-        try {
-          const data = JSON.parse(saved);
-          state.cups = data.cups || 0;
-          state.levelCups = data.levelCups || [0,0,0,0,0,0];
-          state.unlockedLevel = data.unlockedLevel || 0;
-          state.lives = data.lives || 3;
-          updateTopBar();
-          renderLevelGrid();
-        } catch(e) {}
-      }
-    }
-
-    function saveStudentProgress() {
-      const all = JSON.parse(localStorage.getItem('mathTrainerAllStudents') || '{}');
-      if (!studentName || !studentSchool || !studentClass) return;
-      const key = `${studentSchool}||${studentClass.toUpperCase()}||${studentName}`;
-      all[key] = {
-        school: studentSchool,
-        class: studentClass.toUpperCase(),
-        name: studentName,
-        cups: state.cups,
-        levelCups: state.levelCups
-      };
-      localStorage.setItem('mathTrainerAllStudents', JSON.stringify(all));
-    }
-
-    function showMainMenu() {
-      mainMenu.style.display = 'block';
-      gameScreen.style.display = 'none';
-      renderLevelGrid();
-      updateTopBar();
-      state.round = 0;
-      state.levelCompleted = false;
-      state.lastQuestions = [];
-    }
-
-    function renderLevelGrid() {
-      levelGrid.innerHTML = '';
-      LEVELS.forEach((lv, idx) => {
-        const card = document.createElement('div');
-        card.className = 'level-card';
-        if (idx > state.unlockedLevel) card.classList.add('locked');
-        const cups = state.levelCups[idx] || 0;
-        const starStr = '⭐'.repeat(cups) + '☆'.repeat(3-cups);
-        card.innerHTML = `
-          <span class="trophy">${idx+1}</span>
-          <strong>${lv.name}</strong>
-          <div class="stars">${starStr}</div>
-        `;
-        card.addEventListener('click', () => {
-          if (idx <= state.unlockedLevel) {
-            startLevel(idx);
-          }
-        });
-        levelGrid.appendChild(card);
-      });
-    }
-
-    function startLevel(idx) {
-      state.currentLevel = idx;
-      state.round = 0;
-      state.lives = 3;
-      state.levelCompleted = false;
-      state.lastQuestions = [];
-      mainMenu.style.display = 'none';
-      gameScreen.style.display = 'flex';
-      if (idx === 0) {
-        feedbackArea.style.display = 'block';
-        feedbackArea.textContent = '📖 Обучение: замени сумму одинаковых чисел умножением!';
-        feedbackArea.style.background = '#d9d0f0';
-      } else {
-        feedbackArea.style.display = 'none';
-      }
-      updateTopBar();
-      renderRound();
-    }
-
-    // ---- VK SHARE ----
-    document.getElementById('shareBtn')?.addEventListener('click', function() {
-      const text = `Я прошёл ${state.cups} уровней в тренажёре таблицы умножения! 🏆 Попробуй и ты!`;
-      const url = window.location.href;
-      if (vkReady && typeof VK !== 'undefined') {
-        try {
-          VK.callMethod('share', { link: url, text: text });
-        } catch(e) {
-          window.open(`https://vk.com/share.php?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
-        }
-      } else {
-        window.open(`https://vk.com/share.php?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
-      }
-    });
-
-    if (window.location.search.includes('vk_app_id') || window.location.hostname.includes('vk.com')) {
-      initVK();
-    } else {
-      document.getElementById('shareBtn').style.display = 'block';
-    }
-
-    backToMenuBtn.addEventListener('click', () => {
-      if (state.round < 10) {
-        if (!confirm('Вернуться в меню? Прогресс уровня не сохранится.')) return;
-      }
-      state.lives = 3;
-      state.round = 0;
-      state.lastQuestions = [];
-      showMainMenu();
-    });
-
-    loadProgress();
-    showMainMenu();
-  })();
-</script>
-</body>
-</html>
+        feedbackArea.style.background = '#c8f0
