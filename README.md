@@ -18,5 +18,3 @@ MIT License
 predeinanina10@gmail.com
 
 ---
-
-Проект для Всероссийского хакатона «Идея Фикс» 2026
