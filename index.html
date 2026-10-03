@@ -106,11 +106,10 @@
       </div>
     </div>
     <div class="form-group">
-      <label>🏫 Школа</label>
-      <select id="regSchoolSelect">
-        <option value="">-- Выберите школу --</option>
-      </select>
-    </div>
+  <label>🏫 Школа</label>
+  <input type="text" id="regSchoolSearch" placeholder="Начните вводить номер школы" autocomplete="off" maxlength="50">
+  <div id="regSchoolSuggestions" class="school-suggestions"></div>
+</div>
     <div class="form-group">
   <label>📚 Класс</label>
   <select id="regClass">
