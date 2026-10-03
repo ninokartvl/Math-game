@@ -4,168 +4,60 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Таблица умножения — интерактивный тренажёр</title>
-  
-  <!--
-    © 2026 Предеина Нина Владимировна (predeinanina10@gmail.com)
-    Лицензия: MIT License
-  -->
-  
   <script src="https://vk.com/js/api/openapi.js?169"></script>
-  
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, system-ui, sans-serif; user-select: none; }
-    body {
-      margin: 0; min-height: 100vh;
-      background: linear-gradient(145deg, #f7f0fc 0%, #e8dff5 100%);
-      display: flex; justify-content: center; align-items: center; padding: 16px;
-    }
-    #app {
-      max-width: 800px; width: 100%;
-      background: rgba(255,255,255,0.5);
-      backdrop-filter: blur(4px);
-      border-radius: 64px 64px 48px 48px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.2), 0 8px 16px rgba(0,0,0,0.1);
-      padding: 24px 20px 32px;
-      border: 2px solid rgba(255,255,255,0.6);
-    }
-    h1 { font-size: 2.1rem; text-align: center; color: #2d1b4e; margin: 6px 0;
-      display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
+    body { margin: 0; min-height: 100vh; background: linear-gradient(145deg, #f7f0fc 0%, #e8dff5 100%); display: flex; justify-content: center; align-items: center; padding: 16px; }
+    #app { max-width: 800px; width: 100%; background: rgba(255,255,255,0.5); backdrop-filter: blur(4px); border-radius: 64px 64px 48px 48px; box-shadow: 0 20px 40px rgba(0,0,0,0.2), 0 8px 16px rgba(0,0,0,0.1); padding: 24px 20px 32px; border: 2px solid rgba(255,255,255,0.6); }
+    h1 { font-size: 2.1rem; text-align: center; color: #2d1b4e; margin: 6px 0; display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
     .main-menu { display: flex; flex-direction: column; gap: 18px; padding: 8px 4px; }
     .level-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 20px 0 10px; }
-    .level-card {
-      background: #ffffffdd; border-radius: 28px; padding: 12px 6px; text-align: center;
-      box-shadow: 0 6px 0 #b7a1d4, 0 8px 16px rgba(0,0,0,0.1);
-      cursor: pointer; transition: 0.12s ease; border: 2px solid #d8c9f0;
-      font-weight: 600; color: #2a1b3f; font-size: 1rem;
-    }
+    .level-card { background: #ffffffdd; border-radius: 28px; padding: 12px 6px; text-align: center; box-shadow: 0 6px 0 #b7a1d4, 0 8px 16px rgba(0,0,0,0.1); cursor: pointer; transition: 0.12s ease; border: 2px solid #d8c9f0; font-weight: 600; color: #2a1b3f; font-size: 1rem; }
     .level-card:active { transform: scale(0.94); box-shadow: 0 2px 0 #b7a1d4; }
     .level-card.locked { opacity: 0.5; filter: grayscale(0.6); pointer-events: none; }
     .level-card .trophy { font-size: 1.6rem; display: block; }
     .level-card .stars { font-size: 1.2rem; letter-spacing: 2px; }
     .game-area { display: flex; flex-direction: column; align-items: center; gap: 20px; }
-    .top-bar {
-      width: 100%; display: flex; justify-content: space-between;
-      background: #302050cc; backdrop-filter: blur(4px);
-      padding: 10px 18px; border-radius: 60px; color: white;
-      font-weight: 700; font-size: 1.1rem; flex-wrap: wrap; align-items: center;
-    }
+    .top-bar { width: 100%; display: flex; justify-content: space-between; background: #302050cc; backdrop-filter: blur(4px); padding: 10px 18px; border-radius: 60px; color: white; font-weight: 700; font-size: 1.1rem; flex-wrap: wrap; align-items: center; }
     .top-bar span { background: #1e1233; padding: 4px 16px; border-radius: 40px; }
-    .expression-box {
-      background: #ffffffea; width: 100%; padding: 20px 8px; border-radius: 60px;
-      font-size: 2.8rem; font-weight: 700; text-align: center; letter-spacing: 3px;
-      color: #1f0936; border: 4px solid #cbb5e6; box-shadow: inset 0 -6px 0 #a587c9;
-      margin: 8px 0; word-break: break-word; line-height: 1.3;
-    }
+    .expression-box { background: #ffffffea; width: 100%; padding: 20px 8px; border-radius: 60px; font-size: 2.8rem; font-weight: 700; text-align: center; letter-spacing: 3px; color: #1f0936; border: 4px solid #cbb5e6; box-shadow: inset 0 -6px 0 #a587c9; margin: 8px 0; word-break: break-word; line-height: 1.3; }
     .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; margin: 12px 0; }
-    .option-btn {
-      background: #fcf9ff; border: 3px solid #b698da; border-radius: 60px;
-      padding: 18px 6px; font-size: 1.5rem; font-weight: 700; color: #2d0f4a;
-      box-shadow: 0 6px 0 #8466ac; transition: 0.08s linear; text-align: center; cursor: pointer;
-    }
+    .option-btn { background: #fcf9ff; border: 3px solid #b698da; border-radius: 60px; padding: 18px 6px; font-size: 1.5rem; font-weight: 700; color: #2d0f4a; box-shadow: 0 6px 0 #8466ac; transition: 0.08s linear; text-align: center; cursor: pointer; }
     .option-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #8466ac; }
     .option-btn.correct-glow { background: #b7f0b7; border-color: #2b7a2b; }
     .option-btn.wrong-glow { background: #fbb5b5; border-color: #a13030; }
-    .info-msg {
-      background: #ffecb3; padding: 12px 16px; border-radius: 60px;
-      font-weight: 600; color: #5c3d00; border-left: 6px solid #ffa500;
-      width: 100%; text-align: center;
-    }
-    .btn {
-      background: #3e2862; border: none; border-radius: 60px; padding: 14px 28px;
-      color: white; font-weight: 700; font-size: 1.2rem; box-shadow: 0 8px 0 #1f0f35;
-      transition: 0.08s linear; cursor: pointer; width: fit-content; margin: 6px auto;
-      border: 2px solid #b28bde;
-    }
+    .info-msg { background: #ffecb3; padding: 12px 16px; border-radius: 60px; font-weight: 600; color: #5c3d00; border-left: 6px solid #ffa500; width: 100%; text-align: center; }
+    .btn { background: #3e2862; border: none; border-radius: 60px; padding: 14px 28px; color: white; font-weight: 700; font-size: 1.2rem; box-shadow: 0 8px 0 #1f0f35; transition: 0.08s linear; cursor: pointer; width: fit-content; margin: 6px auto; border: 2px solid #b28bde; }
     .btn:active { transform: translateY(4px); box-shadow: 0 3px 0 #1f0f35; }
     .btn-reset { background: #b33; box-shadow: 0 8px 0 #6a1a1a; }
     .btn-reset:active { box-shadow: 0 3px 0 #6a1a1a; }
-    .footer {
-      margin-top: 16px; font-size: 0.9rem; color: #3f2b5a; text-align: center;
-      border-top: 2px dashed #b39ddb; padding-top: 14px;
-    }
+    .footer { margin-top: 16px; font-size: 0.9rem; color: #3f2b5a; text-align: center; border-top: 2px dashed #b39ddb; padding-top: 14px; }
     .lives { display: flex; gap: 8px; font-size: 1.8rem; line-height: 1; }
     .disabled-click { pointer-events: none; opacity: 0.8; }
-    .modal-message {
-      background: #1d0d2e; color: white; padding: 20px 18px; border-radius: 60px;
-      font-weight: 600; font-size: 1.3rem; text-align: center; border: 4px solid #ffd966;
-    }
-    .vk-share-btn {
-      background: #0077ff; border: none; border-radius: 60px; padding: 12px 24px;
-      color: white; font-weight: 700; font-size: 1rem; cursor: pointer;
-      margin-top: 10px; box-shadow: 0 4px 0 #0055cc;
-    }
+    .modal-message { background: #1d0d2e; color: white; padding: 20px 18px; border-radius: 60px; font-weight: 600; font-size: 1.3rem; text-align: center; border: 4px solid #ffd966; }
+    .vk-share-btn { background: #0077ff; border: none; border-radius: 60px; padding: 12px 24px; color: white; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 0 #0055cc; }
     .vk-share-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #0055cc; }
-    .vk-badge {
-      display: inline-block; background: #0077ff; color: white;
-      padding: 2px 12px; border-radius: 20px; font-size: 0.7rem; margin-left: 8px;
-    }
+    .vk-badge { display: inline-block; background: #0077ff; color: white; padding: 2px 12px; border-radius: 20px; font-size: 0.7rem; margin-left: 8px; }
     .button-group { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 8px; }
-    .counter-badge {
-      background: #fff3cd; color: #664d03; padding: 6px 16px; border-radius: 40px;
-      font-weight: 700; font-size: 0.95rem; text-align: center;
-      border: 2px solid #ffd966;
-    }
-
-    /* ---- МОДАЛЬНОЕ ОКНО РЕГИСТРАЦИИ ---- */
-    .modal-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(45, 27, 78, 0.7);
-      backdrop-filter: blur(6px);
-      display: flex; justify-content: center; align-items: center;
-      z-index: 1000; padding: 16px;
-    }
+    .counter-badge { background: #fff3cd; color: #664d03; padding: 6px 16px; border-radius: 40px; font-weight: 700; font-size: 0.95rem; text-align: center; border: 2px solid #ffd966; }
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(45, 27, 78, 0.7); backdrop-filter: blur(6px); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 16px; }
     .modal-overlay.hidden { display: none; }
-    .modal-card {
-      background: white; border-radius: 48px; padding: 32px 24px;
-      max-width: 460px; width: 100%;
-      box-shadow: 0 24px 48px rgba(0,0,0,0.3);
-      border: 4px solid #b698da;
-      max-height: 90vh; overflow-y: auto;
-    }
-    .modal-card h2 {
-      color: #2d1b4e; text-align: center; margin: 0 0 8px;
-      font-size: 1.6rem;
-    }
-    .modal-card .modal-sub {
-      text-align: center; color: #6a5a8a; font-size: 1rem;
-      margin-bottom: 24px;
-    }
+    .modal-card { background: white; border-radius: 48px; padding: 32px 24px; max-width: 460px; width: 100%; box-shadow: 0 24px 48px rgba(0,0,0,0.3); border: 4px solid #b698da; max-height: 90vh; overflow-y: auto; }
+    .modal-card h2 { color: #2d1b4e; text-align: center; margin: 0 0 8px; font-size: 1.6rem; }
+    .modal-card .modal-sub { text-align: center; color: #6a5a8a; font-size: 1rem; margin-bottom: 24px; }
     .form-group { margin-bottom: 16px; }
-    .form-group label {
-      display: block; font-weight: 700; color: #2d1b4e;
-      margin-bottom: 6px; font-size: 0.95rem;
-    }
-    .form-group input, .form-group select {
-      width: 100%; padding: 14px 18px;
-      border: 3px solid #d8c9f0; border-radius: 40px;
-      font-size: 1.1rem; background: #fcf9ff;
-      transition: 0.15s;
-    }
-    .form-group input:focus, .form-group select:focus {
-      outline: none; border-color: #8466ac; background: white;
-    }
-    .form-group input::placeholder { color: #b8a8d0; }
+    .form-group label { display: block; font-weight: 700; color: #2d1b4e; margin-bottom: 6px; font-size: 0.95rem; }
+    .form-group input, .form-group select { width: 100%; padding: 14px 18px; border: 3px solid #d8c9f0; border-radius: 40px; font-size: 1.1rem; background: #fcf9ff; transition: 0.15s; }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: #8466ac; background: white; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .modal-card .btn { width: 100%; margin-top: 12px; font-size: 1.2rem; padding: 16px; }
-    .error-msg {
-      background: #ffe0e0; color: #a13030; padding: 10px 16px;
-      border-radius: 20px; font-weight: 600; font-size: 0.9rem;
-      text-align: center; margin-bottom: 12px; display: none;
-    }
+    .error-msg { background: #ffe0e0; color: #a13030; padding: 10px 16px; border-radius: 20px; font-weight: 600; font-size: 0.9rem; text-align: center; margin-bottom: 12px; display: none; }
     .error-msg.show { display: block; }
-
-    @media (max-width: 500px) {
-      .expression-box { font-size: 2.0rem; }
-      .option-btn { font-size: 1.2rem; padding: 14px 4px; }
-      .level-grid { grid-template-columns: repeat(2, 1fr); }
-      .form-row { grid-template-columns: 1fr; }
-      .modal-card { border-radius: 32px; padding: 24px 18px; }
-    }
+    @media (max-width: 500px) { .expression-box { font-size: 2.0rem; } .option-btn { font-size: 1.2rem; padding: 14px 4px; } .level-grid { grid-template-columns: repeat(2, 1fr); } .form-row { grid-template-columns: 1fr; } .modal-card { border-radius: 32px; padding: 24px 18px; } }
   </style>
 </head>
 <body>
 <div id="app">
-  <!-- ГЛАВНОЕ МЕНЮ -->
   <div id="mainMenu" class="main-menu">
     <h1>🏆 Карта уровней <span class="vk-badge" id="vkBadge" style="display:none;">VK</span></h1>
     <div class="level-grid" id="levelGrid"></div>
@@ -181,7 +73,6 @@
     <div class="footer">© Предеина Н.В. • predeinanina10@gmail.com • MIT License</div>
   </div>
 
-  <!-- ИГРОВОЙ ЭКРАН -->
   <div id="gameScreen" style="display: none;" class="game-area">
     <div class="top-bar">
       <span id="levelTitle">Уровень 1</span>
@@ -199,14 +90,11 @@
   </div>
 </div>
 
-<!-- МОДАЛЬНОЕ ОКНО РЕГИСТРАЦИИ -->
 <div id="registrationModal" class="modal-overlay hidden">
   <div class="modal-card">
     <h2>👋 Добро пожаловать!</h2>
     <p class="modal-sub">Заполни данные, чтобы начать играть</p>
-    
     <div id="regError" class="error-msg"></div>
-
     <div class="form-row">
       <div class="form-group">
         <label>Фамилия</label>
@@ -217,14 +105,12 @@
         <input type="text" id="regFirstName" placeholder="Иван" maxlength="30">
       </div>
     </div>
-
     <div class="form-group">
       <label>🏫 Школа</label>
       <select id="regSchoolSelect">
         <option value="">-- Выберите школу --</option>
       </select>
     </div>
-
     <div class="form-group">
       <label>📚 Класс</label>
       <select id="regClass">
@@ -235,17 +121,14 @@
         <option>4А</option><option>4Б</option><option>4В</option>
       </select>
     </div>
-
     <button class="btn" id="regStartBtn">🚀 Начать игру</button>
   </div>
 </div>
-
 <script>
   (function(){
     const AUTHOR = "Предеина Нина Владимировна";
     const EMAIL = "predeinanina10@gmail.com";
 
-    // ---- СПИСОК ОБРАЗОВАТЕЛЬНЫХ ОРГАНИЗАЦИЙ Г. КРАСНОГОРСКА ----
     const SCHOOLS_LIST = [
       "МБОУ Гимназия №2 г. Красногорска",
       "МБОУ СОШ №18 г. Красногорска",
@@ -304,7 +187,6 @@
       "Частная семейная школа СОВА"
     ];
 
-    // ---------- VK BRIDGE ----------
     let vkReady = false;
     function initVK() {
       if (typeof window.VK !== 'undefined') {
@@ -317,7 +199,6 @@
       }
     }
 
-    // ---------- LEVEL CONFIG ----------
     const LEVELS = [
       { id:0, name:"Замени сложение", type:"sumToMul", maxNum:5 },
       { id:1, name:"Умножение до 5", type:"multiplication", maxNum:5 },
@@ -334,13 +215,11 @@
       lastQuestions: []
     };
 
-    // ---- ДАННЫЕ УЧЕНИКА ----
     let studentLastName = localStorage.getItem('mathTrainerLastName') || '';
     let studentFirstName = localStorage.getItem('mathTrainerFirstName') || '';
     let studentSchool = localStorage.getItem('mathTrainerStudentSchool') || '';
     let studentClass = localStorage.getItem('mathTrainerStudentClass') || '';
 
-    // DOM refs
     const mainMenu = document.getElementById('mainMenu');
     const gameScreen = document.getElementById('gameScreen');
     const levelGrid = document.getElementById('levelGrid');
@@ -365,7 +244,7 @@
     const regClass = document.getElementById('regClass');
     const regStartBtn = document.getElementById('regStartBtn');
     const regError = document.getElementById('regError');
-
+    
     // ---- СЧЁТЧИК УЧЕНИКОВ ----
     function updateCounter() {
       const all = JSON.parse(localStorage.getItem('mathTrainerAllStudents') || '{}');
@@ -473,7 +352,8 @@
         openRegistration();
       }
     });
-
+    
+    // ---- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ----
     function shuffleArray(arr) {
       for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -584,6 +464,7 @@
       return { display, answer, options, answerType };
     }
 
+    // ---- ОТРИСОВКА РАУНДА ----
     function renderRound() {
       const level = state.currentLevel;
       const round = state.round;
@@ -611,7 +492,8 @@
       roundIndicator.textContent = `${round+1}/10`;
       updateTopBar();
     }
-
+    
+    // ---- ОБРАБОТКА КЛИКА ПО ОТВЕТУ ----
     function onOptionClick(e, btn, correct, answerType) {
       if (state.answered) return;
       const selected = btn.dataset.value;
@@ -630,4 +512,216 @@
       if (isCorrect) {
         feedbackArea.style.display = 'block';
         feedbackArea.textContent = '✅ Верно! Молодец!';
-        feedbackArea.style.background = '#c8f0
+        feedbackArea.style.background = '#c8f0c8';
+        setTimeout(() => {
+          if (state.round < 9) { state.round++; renderRound(); }
+          else { state.round = 10; finishLevel(); }
+        }, 900);
+      } else {
+        state.lives--;
+        updateTopBar();
+        feedbackArea.style.display = 'block';
+        feedbackArea.textContent = `❌ Неверно. Правильный ответ: ${correct}`;
+        feedbackArea.style.background = '#fcc';
+        if (state.lives <= 0) {
+          feedbackArea.textContent += ' ❤️ Жизни кончились!';
+          setTimeout(() => {
+            state.lives = 3;
+            state.round = 0;
+            state.lastQuestions = [];
+            updateTopBar();
+            showMainMenu();
+          }, 1500);
+        } else {
+          setTimeout(() => {
+            if (state.round < 9) { state.round++; renderRound(); }
+            else { state.round = 10; finishLevel(); }
+          }, 1200);
+        }
+      }
+    }
+
+    // ---- ЗАВЕРШЕНИЕ УРОВНЯ ----
+    function finishLevel() {
+      state.levelCompleted = true;
+      let earned = 0;
+      if (state.lives > 0) {
+        earned = 1;
+        if (state.lives >= 2) earned = 2;
+        if (state.lives >= 3) earned = 3;
+      }
+      const prev = state.levelCups[state.currentLevel];
+      if (earned > prev) {
+        state.cups += (earned - prev);
+        state.levelCups[state.currentLevel] = earned;
+      }
+      if (state.currentLevel < 5) {
+        state.unlockedLevel = Math.max(state.unlockedLevel, state.currentLevel + 1);
+      }
+      updateTopBar();
+      saveProgress();
+      saveStudentProgress();
+
+      let teacherMsg = '';
+      if (state.currentLevel >= 1 && state.currentLevel <= 5) {
+        teacherMsg = '🧑‍🏫 Покажи прохождение учителю для выставления отметки!';
+      }
+
+      levelCompleteMsg.style.display = 'block';
+      levelCompleteMsg.innerHTML = `🎉 Уровень пройден! +${earned} кубок(а)<br>${teacherMsg}`;
+      nextRoundBtn.style.display = 'none';
+      state.lastQuestions = [];
+    }
+    
+    // ---- ОБНОВЛЕНИЕ ВЕРХНЕЙ ПАНЕЛИ ----
+    function updateTopBar() {
+      const hearts = '❤️'.repeat(Math.max(0, state.lives)) + '🖤'.repeat(Math.max(0, 3-state.lives));
+      livesDisplay.textContent = hearts || '💔';
+      cupDisplay.textContent = `🏅${state.cups}`;
+      globalLives.textContent = state.lives;
+      globalCups.textContent = state.cups;
+    }
+
+    // ---- СОХРАНЕНИЕ ПРОГРЕССА ----
+    function saveProgress() {
+      const data = {
+        cups: state.cups,
+        levelCups: state.levelCups,
+        unlockedLevel: state.unlockedLevel,
+        lives: state.lives
+      };
+      localStorage.setItem('mathTrainerProgress', JSON.stringify(data));
+    }
+
+    function loadProgress() {
+      const saved = localStorage.getItem('mathTrainerProgress');
+      if (saved) {
+        try {
+          const data = JSON.parse(saved);
+          state.cups = data.cups || 0;
+          state.levelCups = data.levelCups || [0,0,0,0,0,0];
+          state.unlockedLevel = data.unlockedLevel || 0;
+          state.lives = data.lives || 3;
+          updateTopBar();
+          renderLevelGrid();
+        } catch(e) {}
+      }
+    }
+
+    // ---- СОХРАНЕНИЕ В ОБЩУЮ СТАТИСТИКУ ----
+    function saveStudentProgress() {
+      const all = JSON.parse(localStorage.getItem('mathTrainerAllStudents') || '{}');
+      if (!studentLastName || !studentFirstName || !studentSchool || !studentClass) return;
+      const key = `${studentSchool}||${studentClass}||${studentLastName} ${studentFirstName}`;
+      all[key] = {
+        school: studentSchool,
+        class: studentClass,
+        name: `${studentLastName} ${studentFirstName}`,
+        cups: state.cups,
+        levelCups: state.levelCups
+      };
+      localStorage.setItem('mathTrainerAllStudents', JSON.stringify(all));
+      updateCounter();
+    }
+
+    // ---- ГЛАВНОЕ МЕНЮ ----
+    function showMainMenu() {
+      mainMenu.style.display = 'block';
+      gameScreen.style.display = 'none';
+      renderLevelGrid();
+      updateTopBar();
+      state.round = 0;
+      state.levelCompleted = false;
+      state.lastQuestions = [];
+    }
+
+    // ---- ОТРИСОВКА СЕТКИ УРОВНЕЙ ----
+    function renderLevelGrid() {
+      levelGrid.innerHTML = '';
+      LEVELS.forEach((lv, idx) => {
+        const card = document.createElement('div');
+        card.className = 'level-card';
+        if (idx > state.unlockedLevel) card.classList.add('locked');
+        const cups = state.levelCups[idx] || 0;
+        const starStr = '⭐'.repeat(cups) + '☆'.repeat(3-cups);
+        card.innerHTML = `
+          <span class="trophy">${idx+1}</span>
+          <strong>${lv.name}</strong>
+          <div class="stars">${starStr}</div>
+        `;
+        card.addEventListener('click', () => {
+          if (idx <= state.unlockedLevel) {
+            startLevel(idx);
+          }
+        });
+        levelGrid.appendChild(card);
+      });
+    }
+
+    // ---- СТАРТ УРОВНЯ ----
+    function startLevel(idx) {
+      state.currentLevel = idx;
+      state.round = 0;
+      state.lives = 3;
+      state.levelCompleted = false;
+      state.lastQuestions = [];
+      mainMenu.style.display = 'none';
+      gameScreen.style.display = 'flex';
+      if (idx === 0) {
+        feedbackArea.style.display = 'block';
+        feedbackArea.textContent = '📖 Обучение: замени сумму одинаковых чисел умножением!';
+        feedbackArea.style.background = '#d9d0f0';
+      } else {
+        feedbackArea.style.display = 'none';
+      }
+      updateTopBar();
+      renderRound();
+    }
+    
+    // ---- VK SHARE ----
+    document.getElementById('shareBtn').addEventListener('click', function() {
+      const text = `Я прошёл ${state.cups} уровней в тренажёре таблицы умножения! 🏆 Попробуй и ты!`;
+      const url = window.location.href;
+      if (vkReady && typeof VK !== 'undefined') {
+        try {
+          VK.callMethod('share', { link: url, text: text });
+        } catch(e) {
+          window.open(`https://vk.com/share.php?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+        }
+      } else {
+        window.open(`https://vk.com/share.php?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+      }
+    });
+
+    // ---- ИНИЦИАЛИЗАЦИЯ VK ----
+    if (window.location.search.includes('vk_app_id') || window.location.hostname.includes('vk.com')) {
+      initVK();
+    } else {
+      document.getElementById('shareBtn').style.display = 'block';
+    }
+
+    // ---- КНОПКА "В МЕНЮ" ----
+    backToMenuBtn.addEventListener('click', () => {
+      if (state.round < 10) {
+        if (!confirm('Вернуться в меню? Прогресс уровня не сохранится.')) return;
+      }
+      state.lives = 3;
+      state.round = 0;
+      state.lastQuestions = [];
+      showMainMenu();
+    });
+
+    // ---- ЗАПУСК ИГРЫ ----
+    loadProgress();
+    updateCounter();
+    showMainMenu();
+
+    // Если данные ученика не заполнены — открываем окно регистрации
+    if (!studentLastName || !studentFirstName || !studentSchool || !studentClass) {
+      openRegistration();
+    }
+
+  })();
+</script>
+</body>
+</html>
