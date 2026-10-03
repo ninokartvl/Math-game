@@ -54,6 +54,36 @@
     .error-msg { background: #ffe0e0; color: #a13030; padding: 10px 16px; border-radius: 20px; font-weight: 600; font-size: 0.9rem; text-align: center; margin-bottom: 12px; display: none; }
     .error-msg.show { display: block; }
     @media (max-width: 500px) { .expression-box { font-size: 2.0rem; } .option-btn { font-size: 1.2rem; padding: 14px 4px; } .level-grid { grid-template-columns: repeat(2, 1fr); } .form-row { grid-template-columns: 1fr; } .modal-card { border-radius: 32px; padding: 24px 18px; } }
+  .school-suggestions {
+  max-height: 220px;
+  overflow-y: auto;
+  margin-top: 8px;
+  border-radius: 20px;
+  background: #fcf9ff;
+  border: 2px solid #d8c9f0;
+  display: none;
+}
+.school-suggestions.show { display: block; }
+.school-suggestions .suggestion {
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #2d1b4e;
+  border-bottom: 1px solid #f0ebf8;
+  transition: 0.1s;
+}
+.school-suggestions .suggestion:last-child { border-bottom: none; }
+.school-suggestions .suggestion:hover,
+.school-suggestions .suggestion.active {
+  background: #e0d4f0;
+  font-weight: 700;
+}
+.school-suggestions .no-results {
+  padding: 14px;
+  text-align: center;
+  color: #8a7aa8;
+  font-size: 0.9rem;
+}
   </style>
 </head>
 <body>
@@ -258,16 +288,54 @@
       counterBadge.textContent = `👥 Играли: ${Object.keys(all).length} учеников`;
     }
 
-    // ---- ЗАГРУЗКА СПИСКА ШКОЛ ----
-    function loadSchoolSelect() {
-      regSchoolSelect.innerHTML = '<option value="">-- Выберите школу --</option>';
-      SCHOOLS_LIST.forEach(school => {
-        const opt = document.createElement('option');
-        opt.value = school;
-        opt.textContent = school;
-        regSchoolSelect.appendChild(opt);
-      });
-    }
+    // ---- ПОИСК ШКОЛЫ С АВТОДОПОЛНЕНИЕМ ----
+const regSchoolSearch = document.getElementById('regSchoolSearch');
+const regSchoolSuggestions = document.getElementById('regSchoolSuggestions');
+let selectedSchool = '';
+
+function showSchoolSuggestions(query) {
+  const q = query.trim().toLowerCase();
+  regSchoolSuggestions.innerHTML = '';
+  if (!q) {
+    regSchoolSuggestions.classList.remove('show');
+    return;
+  }
+  const matches = SCHOOLS_LIST.filter(school => 
+    school.toLowerCase().includes(q)
+  );
+  if (matches.length === 0) {
+    regSchoolSuggestions.innerHTML = '<div class="no-results">🔍 Школа не найдена</div>';
+    regSchoolSuggestions.classList.add('show');
+    return;
+  }
+  matches.slice(0, 10).forEach(school => {
+    const div = document.createElement('div');
+    div.className = 'suggestion';
+    div.textContent = school;
+    div.addEventListener('click', () => {
+      regSchoolSearch.value = school;
+      selectedSchool = school;
+      regSchoolSuggestions.classList.remove('show');
+    });
+    regSchoolSuggestions.appendChild(div);
+  });
+  regSchoolSuggestions.classList.add('show');
+}
+
+regSchoolSearch.addEventListener('input', function() {
+  selectedSchool = '';
+  showSchoolSuggestions(this.value);
+});
+
+regSchoolSearch.addEventListener('focus', function() {
+  if (this.value) showSchoolSuggestions(this.value);
+});
+
+document.addEventListener('click', function(e) {
+  if (!regSchoolSearch.contains(e.target) && !regSchoolSuggestions.contains(e.target)) {
+    regSchoolSuggestions.classList.remove('show');
+  }
+});
 
     // ---- ОТКРЫТИЕ МОДАЛЬНОГО ОКНА ----
     function openRegistration() {
@@ -276,7 +344,10 @@
       regLastName.value = '';
       regFirstName.value = '';
       regClass.value = '';
-      loadSchoolSelect();
+       regSchoolSearch.value = '';
+      regSchoolSuggestions.innerHTML = '';
+      regSchoolSuggestions.classList.remove('show');
+      selectedSchool = '';
       regLastName.focus();
     }
 
