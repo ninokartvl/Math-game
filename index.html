@@ -277,7 +277,6 @@
     const registrationModal = document.getElementById('registrationModal');
     const regLastName = document.getElementById('regLastName');
     const regFirstName = document.getElementById('regFirstName');
-    const regSchoolSelect = document.getElementById('regSchoolSelect');
     const regClass = document.getElementById('regClass');
     const regStartBtn = document.getElementById('regStartBtn');
     const regError = document.getElementById('regError');
@@ -360,7 +359,7 @@ document.addEventListener('click', function(e) {
     regStartBtn.addEventListener('click', function() {
       const lastName = regLastName.value.trim();
       const firstName = regFirstName.value.trim();
-      const school = regSchoolSelect.value;
+      const school = selectedSchool || regSchoolSearch.value.trim();
       const cls = regClass.value;
 
       if (!lastName || !firstName) {
